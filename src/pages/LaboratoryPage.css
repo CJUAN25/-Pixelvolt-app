@@ -1,0 +1,539 @@
+/* LaboratoryPage.css - Nuevo diseño de dos columnas */
+
+.laboratory-page {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(
+    135deg,
+    #0a0a1a 0%,
+    #1a1a3a 30%,
+    #2a2a4a 70%,
+    #1a1a3a 100%
+  );
+  position: relative;
+  overflow: hidden;
+  font-family: var(--pixel-font);
+  display: flex;
+  flex-direction: column;
+  
+  /* Patrón de fondo tecnológico */
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 150, 255, 0.1) 0%, transparent 50%),
+    linear-gradient(90deg, transparent 49%, rgba(0, 255, 255, 0.03) 50%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, rgba(0, 255, 255, 0.03) 50%, transparent 51%);
+  background-size: 100px 100px, 150px 150px, 30px 30px, 30px 30px;
+}
+/* Header - más compacto */
+.lab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 25px;
+  background: rgba(0, 20, 40, 0.9);
+  border-bottom: 2px solid var(--accent-color);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+  height: 70px;
+}
+
+.user-info {
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.user-label {
+  color: var(--accent-color);
+  margin-right: 8px;
+}
+
+.user-name {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.lab-title {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  justify-content: center;
+}
+
+.lab-title h1 {
+  font-size: 22px;
+  color: var(--accent-color);
+  text-shadow: 
+    0 0 10px var(--accent-color),
+    2px 2px 0 rgba(0, 255, 255, 0.3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.close-button {
+  background: rgba(255, 100, 100, 0.2);
+  border: 2px solid #ff6464;
+  color: #ff6464;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background: rgba(255, 100, 100, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 100, 100, 0.5);
+}
+
+/* Layout principal de dos columnas */
+.lab-main-layout {
+  display: grid;
+  grid-template-columns: 35% 65%;
+  height: calc(100vh - 70px);
+  gap: 15px;
+  padding: 15px 20px;
+  flex: 1;
+}
+
+/* Columna Izquierda (35%) */
+.left-column {
+  background: rgba(0, 20, 40, 0.6);
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  height: 100%;
+}
+
+.robot-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.robot-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.robot-image {
+  width: 140px;
+  height: 175px;
+  filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.4));
+  animation: robotFloat 3s ease-in-out infinite;
+}
+
+.robot-mode-indicator {
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid var(--accent-color);
+  border-radius: 15px;
+  padding: 6px 12px;
+  font-size: 8px;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+.shop-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.shop-button {
+  background: linear-gradient(45deg, #ff6b35, #f7931e);
+  border: 2px solid #ff6b35;
+  color: white;
+  padding: 10px 25px;
+  font-size: 12px;
+  font-family: var(--pixel-font);
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.shop-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.shop-button:hover::before {
+  left: 100%;
+}
+
+.shop-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+  background: linear-gradient(45deg, #ff7b45, #ff9b2e);
+}
+
+/* Columna Derecha (65%) */
+.right-column {
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 10, 20, 0.3);
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 15px;
+  height: 100%;
+  gap: 15px;
+}
+
+.panels-section {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panels-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 15px;
+}
+
+.controls-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: rgba(0, 30, 60, 0.4);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-radius: 8px;
+  flex-shrink: 0;
+  height: 60px;
+}
+
+.lab-controls {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.control-button {
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  font-family: var(--pixel-font);
+  font-size: 12px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.control-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.control-button:hover::before {
+  left: 100%;
+}
+
+.control-button:hover {
+  background: rgba(0, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+}
+
+.mode-button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  border-color: #ff6b35;
+  color: white;
+}
+
+.mode-button:hover {
+  background: linear-gradient(135deg, #ff7b45 0%, #ff9b2e 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+}
+
+.logout-button {
+  background: linear-gradient(135deg, #666 0%, #444 100%);
+  border-color: #666;
+  color: #ccc;
+}
+
+.logout-button:hover {
+  background: linear-gradient(135deg, #777 0%, #555 100%);
+  box-shadow: 0 4px 15px rgba(102, 102, 102, 0.4);
+}
+
+/* Decoraciones */
+.lab-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.decoration.cyber-grid {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(0, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: rotate 20s linear infinite;
+}
+
+.decoration.cyber-grid::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border: 2px solid rgba(0, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.decoration.energy-flow {
+  position: absolute;
+  bottom: 20%;
+  left: 5%;
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 35px solid rgba(0, 255, 255, 0.1);
+  animation: pulse 3s ease-in-out infinite;
+}
+/* Animaciones */
+@keyframes titleGlow {
+  from { text-shadow: 0 0 10px var(--accent-color), 2px 2px 0 rgba(0, 255, 255, 0.3); }
+  to { text-shadow: 0 0 20px var(--accent-color), 0 0 30px var(--accent-color), 2px 2px 0 rgba(0, 255, 255, 0.3); }
+}
+
+@keyframes robotFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1200px) {
+  .lab-main-layout {
+    grid-template-columns: 35% 65%;
+    gap: 12px;
+    padding: 12px 15px;
+  }
+  
+  .robot-image {
+    width: 120px;
+    height: 150px;
+  }
+  
+  .panels-grid {
+    gap: 10px;
+  }
+  
+  .lab-title h1 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .lab-main-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - 70px);
+  }
+  
+  .left-column {
+    border: 2px solid var(--accent-color);
+    padding: 15px 20px;
+    flex-direction: row;
+    justify-content: space-around;
+    height: auto;
+  }
+  
+  .robot-section {
+    margin-bottom: 0;
+    margin-right: 20px;
+  }
+  
+  .robot-image {
+    width: 100px;
+    height: 125px;
+  }
+  
+  .shop-section {
+    width: auto;
+  }
+  
+  .panels-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .laboratory-page {
+    height: 100vh;
+  }
+  
+  .lab-header {
+    padding: 10px 15px;
+    height: 60px;
+  }
+  
+  .lab-title h1 {
+    font-size: 16px;
+  }
+  
+  .lab-main-layout {
+    height: calc(100vh - 60px);
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .left-column {
+    flex-direction: column;
+    padding: 15px;
+    height: auto;
+  }
+  
+  .robot-section {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .robot-image {
+    width: 80px;
+    height: 100px;
+  }
+  
+  .panels-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .controls-section {
+    flex-direction: column;
+    gap: 8px;
+    height: auto;
+    padding: 8px;
+  }
+  
+  .control-button {
+    width: 100%;
+    padding: 8px 15px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lab-header {
+    padding: 8px 12px;
+    height: 50px;
+  }
+  
+  .lab-title h1 {
+    font-size: 12px;
+  }
+  
+  .lab-main-layout {
+    height: calc(100vh - 50px);
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .right-column {
+    padding: 10px;
+  }
+  
+  .panels-grid {
+    gap: 6px;
+  }
+  
+  .shop-button {
+    padding: 8px 20px;
+    font-size: 10px;
+  }
+  
+  .robot-image {
+    width: 70px;
+    height: 85px;
+  }
+  
+  .user-info {
+    font-size: 8px;
+    padding: 6px 10px;
+  }
+  
+  .close-button {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+}

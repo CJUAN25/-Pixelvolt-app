@@ -1,0 +1,266 @@
+/* AuthPage.css - Estilos para la página de autenticación */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: 
+    linear-gradient(45deg, transparent 45%, rgba(0, 255, 255, 0.05) 49%, rgba(0, 255, 255, 0.05) 51%, transparent 55%),
+    linear-gradient(-45deg, transparent 45%, rgba(0, 255, 255, 0.05) 49%, rgba(0, 255, 255, 0.05) 51%, transparent 55%);
+  background-size: 20px 20px;
+  background-color: var(--primary-bg);
+  position: relative;
+  padding: 20px;
+}
+
+.auth-container {
+  background-color: var(--secondary-bg);
+  border: 3px solid var(--pixel-cyan);
+  box-shadow: 
+    0 0 20px rgba(0, 255, 255, 0.4),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  
+  /* Efecto de bordes pixelados */
+  border-image: none;
+  image-rendering: pixelated;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: var(--pixel-cyan);
+  z-index: -1;
+  clip-path: polygon(
+    0 0, 100% 0, 100% calc(100% - 10px), 
+    calc(100% - 10px) 100%, 0 100%
+  );
+}
+
+.auth-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.game-title {
+  font-size: 32px;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  text-shadow: 
+    2px 2px 0 var(--pixel-cyan),
+    4px 4px 0 rgba(0, 255, 255, 0.4);
+  letter-spacing: 2px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  flex: 1;
+  background-color: transparent;
+  border: 2px solid var(--pixel-cyan);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tab-button:first-child {
+  border-right: none;
+}
+
+.tab-button:last-child {
+  border-left: none;
+}
+
+.tab-button.active {
+  background-color: var(--pixel-cyan);
+  color: var(--primary-bg);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.tab-button:hover:not(.active) {
+  background-color: rgba(0, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group {
+  position: relative;
+}
+
+.pixel-input {
+  width: 100%;
+  background-color: var(--primary-bg);
+  border: 2px solid var(--pixel-cyan);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 10px;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.pixel-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.pixel-input:focus {
+  box-shadow: 
+    0 0 10px rgba(0, 255, 255, 0.5),
+    inset 0 0 5px rgba(0, 255, 255, 0.2);
+  border-color: var(--pixel-cyan-light);
+}
+
+.pixel-button.primary {
+  background-color: var(--pixel-cyan);
+  border: 2px solid var(--text-primary);
+  color: var(--primary-bg);
+  font-family: var(--font-family);
+  font-size: 12px;
+  padding: 15px 30px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+  
+  box-shadow: 
+    0 4px 0 var(--text-primary),
+    0 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.pixel-button.primary:hover {
+  background-color: var(--pixel-cyan-light);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 0 var(--text-primary),
+    0 8px 15px rgba(0, 0, 0, 0.4);
+}
+
+.pixel-button.primary:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 0 var(--text-primary),
+    0 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.auth-footer {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.toggle-text {
+  color: var(--text-secondary);
+  font-size: 10px;
+  margin: 0;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--pixel-cyan);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 10px;
+  text-decoration: underline;
+  margin-left: 5px;
+  transition: color 0.2s ease;
+}
+
+.link-button:hover {
+  color: var(--pixel-cyan-light);
+}
+
+/* Elemento decorativo */
+.pixel-decoration {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: var(--pixel-cyan);
+  clip-path: polygon(
+    20% 0%, 80% 0%, 100% 20%, 100% 80%, 
+    80% 100%, 20% 100%, 0% 80%, 0% 20%
+  );
+  opacity: 0.6;
+  animation: pixelPulse 2s ease-in-out infinite;
+}
+
+@keyframes pixelPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Efectos responsive */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+  
+  .game-title {
+    font-size: 24px;
+  }
+  
+  .tab-button {
+    font-size: 8px;
+    padding: 10px 15px;
+  }
+  
+  .pixel-input {
+    font-size: 9px;
+    padding: 12px 15px;
+  }
+  
+  .pixel-button.primary {
+    font-size: 10px;
+    padding: 12px 25px;
+  }
+}
+
+/* Animación de entrada */
+.auth-container {
+  animation: slideInFromTop 0.6s ease-out;
+}
+
+@keyframes slideInFromTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

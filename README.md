@@ -1,70 +1,78 @@
-# Getting Started with Create React App
+# PixelVolt - Juego Web
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Un juego web desarrollado con React, siguiendo patrones de diseño profesionales y estructura organizada.
 
-## Available Scripts
+## 🚀 Estructura del Proyecto
 
-In the project directory, you can run:
+```
+pixelvolt-app/
+├── public/                 # Archivos públicos estáticos
+├── src/
+│   ├── components/         # Componentes reutilizables de UI
+│   ├── pages/             # Vistas principales de la aplicación
+│   ├── assets/            # Imágenes, fuentes y recursos multimedia
+│   ├── styles/            # Archivos CSS globales
+│   │   └── global.css     # Estilos globales y variables CSS
+│   ├── App.js             # Componente principal de la aplicación
+│   ├── index.js           # Punto de entrada de React
+│   └── index.css          # Estilos básicos de React
+├── package.json           # Dependencias and scripts del proyecto
+└── README.md              # Documentación del proyecto
+```
+
+## 🎨 Paleta de Colores (Pixel Art Theme)
+
+- **Fondo Principal**: `#1a1a2e`
+- **Fondo Secundario**: `#16213e`
+- **Color de Acento**: `#e94560`
+- **Texto Principal**: `#ffffff`
+- **Texto Secundario**: `#b8b8b8`
+- **Verde Pixel**: `#00ff41`
+- **Azul Pixel**: `#0f3460`
+- **Amarillo Pixel**: `#ffd700`
+- **Rojo Pixel**: `#ff3366`
+
+## 🔤 Tipografía
+
+- **Fuente Principal**: 'Press Start 2P' (Google Fonts)
+- Optimizada para estilo Pixel Art con renderizado nítido
+
+## 📦 Comandos Disponibles
 
 ### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Ejecuta la aplicación en modo desarrollo.\
+Abre [http://localhost:3000](http://localhost:3000) para verla en el navegador.
 
 ### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Ejecuta el corredor de pruebas en modo interactivo.
 
 ### `npm run build`
+Construye la aplicación para producción en la carpeta `build`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🏗️ Fase de Desarrollo Actual
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Fase 1: Preparación del Entorno y Estructura Base** ✅
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- [x] Crear proyecto React
+- [x] Limpiar archivos innecesarios  
+- [x] Definir estructura de carpetas
+- [x] Configurar estilos globales con tema Pixel Art
+- [x] Establecer variables CSS para mantenibilidad
 
-### `npm run eject`
+## 📋 Próximas Fases
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **Fase 2**: Diseño de la interfaz principal
+- **Fase 3**: Implementación de la lógica del juego
+- **Fase 4**: Sistema de puntuación y progreso
+- **Fase 5**: Optimización y deployment
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🛠️ Tecnologías Utilizadas
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- React 18
+- CSS3 con Variables Personalizadas
+- Google Fonts (Press Start 2P)
+- Create React App
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+*Proyecto desarrollado siguiendo principios de código limpio y patrones de diseño profesionales.*
