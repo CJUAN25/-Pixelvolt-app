@@ -1,0 +1,328 @@
+# 📚 Documentación del Proyecto PixelVolt
+
+## Índice de Fases de Desarrollo
+
+Este directorio contiene la documentación completa del proceso de desarrollo del proyecto PixelVolt, organizada por fases.
+
+---
+
+## 📋 Fases Completadas
+
+### ✅ [Fase 1: Reestructuración de la Arquitectura Central](./FASE-1-REFACTORIZACION.md)
+
+**Fecha**: 7 de octubre de 2025 (Migrado: 21 de octubre de 2025)  
+**Estado**: ✅ Completada y Migrada a Español
+
+**Resumen**:
+
+- Instalación de react-router-dom
+- Reestructuración completa del proyecto
+- Migración de nomenclatura a español (features → caracteristicas, etc.)
+- Sistema de autenticación global con ContextoAutenticacion
+- Implementación de rutas protegidas (RutaProtegida)
+- Navegación basada en URLs
+
+**Archivos Clave**:
+
+- `src/contexto/ContextoAutenticacion.js`
+- `src/componentes/RutaProtegida.js`
+- `src/App.js`
+
+---
+
+### ✅ [Fase 2: Adaptación del Flujo de Autenticación](./FASE-2-AUTENTICACION.md)
+
+**Fecha**: 7 de octubre de 2025 (Migrado: 21 de octubre de 2025)  
+**Estado**: ✅ Completada y Migrada a Español
+
+**Resumen**:
+
+- Integración de ContextoAutenticacion en PaginaAutenticacion
+- Sistema de códigos de invitación para docentes
+- Código `PROFESOR2025` para registro de docentes
+- Validación de contraseñas
+- Asignación dinámica de roles (Estudiante/Docente)
+- Migración completa de nombres a español
+
+**Requisitos Funcionales Implementados**:
+
+- **RF-001**: Sistema de inicio de sesión
+- **RF-010**: Código de invitación para docentes
+
+**Archivos Clave**:
+
+- `src/caracteristicas/autenticacion/PaginaAutenticacion.js`
+
+---
+
+### ✅ [Fase 3: Panel del Laboratorio](./FASE-3-LABORATORIO.md)
+
+**Fecha**: 8 de octubre de 2025 (Migrado: 21 de octubre de 2025)  
+**Estado**: ✅ Completada y Migrada a Español
+
+**Resumen**:
+
+- Diseño responsive de dos columnas para PaginaLaboratorio
+- 6 paneles temáticos (Chatarrería de Robots, Electricidad, Magnetismo, etc.)
+- Sistema de desbloqueo progresivo
+- Modo Sandbox para docentes (todos los paneles desbloqueados)
+- Componente TarjetaPanel reutilizable
+- Navegación a PaginaSubtema
+
+**Requisitos Funcionales Implementados**:
+
+- **RF-002**: Visualización de paneles temáticos
+- **RF-003**: Sistema de progreso con estados (desbloqueado/bloqueado/completado)
+- **RF-011**: Modo Sandbox para docentes
+
+**Archivos Clave**:
+
+- `src/caracteristicas/laboratorio/PaginaLaboratorio.js`
+- `src/caracteristicas/subtema/PaginaSubtema.js`
+- `src/componentes/TarjetaPanel.js`
+
+---
+
+### ✅ [Fase 4A: Panel de Control del Docente - Parte A](./FASE-4A-DASHBOARD-GRUPOS.md)
+
+**Fecha**: 9 de octubre de 2025 (Migrado: 21 de octubre de 2025)  
+**Estado**: ✅ Completada y Migrada a Español
+
+**Resumen**:
+
+- Dashboard exclusivo para docentes (`/dashboard`)
+- Pestaña de Gestión de Grupos (GestorGrupos)
+- CRUD completo de grupos con servicioGrupos
+- Generación automática de códigos de unión
+- Modales para crear/editar/eliminar grupos
+- Sistema de mock database con localStorage
+
+**Requisitos Funcionales Implementados**:
+
+- **RF-006**: Creación y gestión de grupos
+- **RF-007**: Generación de códigos de unión únicos
+
+**Archivos Clave**:
+
+- `src/paginas/DashboardPage.js`
+- `src/caracteristicas/panel-control/GestorGrupos.js`
+- `src/api/servicioGrupos.js`
+
+---
+
+### ✅ [Fase 4B: Panel de Control del Docente - Parte B](./FASE-4B-DASHBOARD-PROGRESO.md)
+
+**Fecha**: 9 de octubre de 2025 (Migrado: 21 de octubre de 2025)  
+**Estado**: ✅ Completada y Migrada a Español
+
+**Resumen**:
+
+- Pestaña de Visor de Progreso (VisorProgreso)
+- Métricas de progreso por grupo
+- Rendimiento por panel temático
+- Filtros por grupo
+- Integración con servicioProgreso
+- Visualización de datos de estudiantes
+
+**Requisitos Funcionales Implementados**:
+
+- **RF-008**: Visualización de progreso estudiantil
+- **RF-009**: Estadísticas por grupo y panel
+
+**Archivos Clave**:
+
+- `src/caracteristicas/panel-control/VisorProgreso.js`
+- `src/api/servicioProgreso.js`
+
+---
+
+## 🔜 Próximas Fases Planificadas
+
+### Fase 5: Sistema de Desafíos Personalizados
+
+**Pendiente**
+
+- Constructor de desafíos (ConstructorDesafios completo)
+- Asignación de desafíos a grupos
+- Sistema de evaluación
+
+### Fase 6: Integración con Backend
+
+**Pendiente**
+
+- Conexión con API REST
+- Autenticación con JWT
+- Persistencia real de datos
+- WebSockets para actualizaciones en tiempo real
+
+### Fase 7: Sistema de Gamificación
+
+**Pendiente**
+
+- Puntos y recompensas
+- Tienda de avatares
+- Logros y badges
+- Tabla de clasificación
+
+---
+
+## 📊 Estado General del Proyecto
+
+### Estructura Actual del Proyecto
+
+```
+pixelvolt-app/
+├── docs/
+│   └── fases/                    # 📂 Documentación organizada
+│       ├── README.md             # Este archivo
+│       ├── FASE-1-REFACTORIZACION.md
+│       ├── FASE-2-AUTENTICACION.md
+│       ├── FASE-3-LABORATORIO.md
+│       ├── FASE-4A-DASHBOARD-GRUPOS.md
+│       └── FASE-4B-DASHBOARD-PROGRESO.md
+│
+├── src/
+│   ├── api/                      # Servicios (español)
+│   │   ├── servicioGrupos.js
+│   │   └── servicioProgreso.js
+│   │
+│   ├── caracteristicas/          # Características (español)
+│   │   ├── autenticacion/
+│   │   │   ├── PaginaAutenticacion.js
+│   │   │   └── PaginaAutenticacion.css
+│   │   ├── laboratorio/
+│   │   │   ├── PaginaLaboratorio.js
+│   │   │   └── PaginaLaboratorio.css
+│   │   ├── subtema/
+│   │   │   ├── PaginaSubtema.js
+│   │   │   └── PaginaSubtema.css
+│   │   └── panel-control/
+│   │       ├── GestorGrupos.js
+│   │       ├── GestorGrupos.css
+│   │       ├── VisorProgreso.js
+│   │       ├── VisorProgreso.css
+│   │       └── ConstructorDesafios.js
+│   │
+│   ├── componentes/              # Componentes reutilizables (español)
+│   │   ├── TarjetaPanel.js
+│   │   ├── TarjetaPanel.css
+│   │   └── RutaProtegida.js
+│   │
+│   ├── contexto/                 # Estado global (español)
+│   │   └── ContextoAutenticacion.js
+│   │
+│   ├── estilos/                  # Estilos globales (español)
+│   │   └── global.css
+│   │
+│   ├── paginas/                  # Páginas principales
+│   │   ├── DashboardPage.js
+│   │   └── DashboardPage.css
+│   │
+│   ├── App.js                    # Componente raíz
+│   └── index.js                  # Punto de entrada
+│
+├── public/
+├── build/
+├── package.json
+└── README.md
+```
+
+### Requisitos Funcionales Completados
+
+| ID | Requisito | Estado | Fase |
+|----|-----------|--------|------|
+| RF-001 | Inicio de sesión | ✅ | 2 |
+| RF-002 | Visualización de paneles | ✅ | 3 |
+| RF-003 | Sistema de progreso | ✅ | 3 |
+| RF-006 | Gestión de grupos | ✅ | 4A |
+| RF-007 | Códigos de unión | ✅ | 4A |
+| RF-008 | Visualización de progreso | ✅ | 4B |
+| RF-009 | Estadísticas por grupo | ✅ | 4B |
+| RF-010 | Código de invitación docente | ✅ | 2 |
+| RF-011 | Modo Sandbox | ✅ | 3 |
+
+### Migración a Español
+
+**Estado**: ✅ 100% Completada
+
+Toda la base de código ha sido migrada a nomenclatura en español:
+
+- ✅ Nombres de carpetas (features → caracteristicas, etc.)
+- ✅ Nombres de componentes (AuthPage → PaginaAutenticacion, etc.)
+- ✅ Nombres de funciones (login → iniciarSesion, etc.)
+- ✅ Nombres de variables (user → usuario, etc.)
+- ✅ Nombres de servicios (groupService → servicioGrupos, etc.)
+- ✅ Estados (unlocked → desbloqueado, etc.)
+
+### Archivos Legacy Eliminados
+
+- ❌ `src/features/` (completo)
+- ❌ `src/components/` (completo)
+- ❌ `src/context/AuthContext.js`
+- ❌ `src/api/groupService.js`
+- ❌ `src/api/progressService.js`
+- ❌ Duplicados en `src/paginas/`
+- ❌ Archivos antiguos de fases en raíz del proyecto
+
+---
+
+## 🚀 Cómo Usar Esta Documentación
+
+### Para Desarrolladores
+
+1. Lee la documentación en orden secuencial (Fase 1 → Fase 2 → ...)
+2. Cada fase contiene:
+   - Cambios realizados
+   - Archivos modificados
+   - Requisitos funcionales implementados
+   - Casos de prueba
+3. Usa la estructura de archivos como referencia
+
+### Para Nuevos Miembros del Equipo
+
+1. Empieza con **Fase 1** para entender la arquitectura base
+2. Revisa **Fase 2** para el sistema de autenticación
+3. Continúa secuencialmente para ver la evolución del proyecto
+
+### Para QA/Testing
+
+- Cada fase incluye casos de prueba específicos
+- Los requisitos funcionales están claramente marcados
+- Se incluyen inputs esperados y outputs
+
+---
+
+## 📝 Convenciones de Nomenclatura
+
+### Español en Todo el Código
+
+- **Componentes**: `PaginaAutenticacion`, `TarjetaPanel`, `GestorGrupos`
+- **Funciones**: `iniciarSesion()`, `manejarClic()`, `obtenerGrupos()`
+- **Variables**: `usuario`, `nombreUsuario`, `datosFormulario`
+- **Estados**: `desbloqueado`, `bloqueado`, `completado`
+- **Props**: `alHacerClic`, `alVolverAutenticacion`
+
+### Organización de Carpetas
+
+- `caracteristicas/` - Código organizado por característica funcional
+- `componentes/` - Componentes reutilizables
+- `contexto/` - Estado global de la aplicación
+- `api/` - Servicios para comunicación con backend
+- `estilos/` - Estilos globales
+
+---
+
+## 🔗 Enlaces Útiles
+
+- [Fase 1: Reestructuración](./FASE-1-REFACTORIZACION.md)
+- [Fase 2: Autenticación](./FASE-2-AUTENTICACION.md)
+- [Fase 3: Laboratorio](./FASE-3-LABORATORIO.md)
+- [Fase 4A: Dashboard Grupos](./FASE-4A-DASHBOARD-GRUPOS.md)
+- [Fase 4B: Dashboard Progreso](./FASE-4B-DASHBOARD-PROGRESO.md)
+
+---
+
+**Última Actualización**: 21 de octubre de 2025  
+**Versión del Proyecto**: 0.4.0  
+**Estado**: En Desarrollo Activo  
+**Idioma del Código**: Español 🇪🇸

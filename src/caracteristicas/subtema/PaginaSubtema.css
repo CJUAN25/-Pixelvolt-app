@@ -1,11 +1,11 @@
-/* SubthemePage Styles */
+/* PaginaSubtema.css - Copia adaptada de SubthemePage.css con clases en español */
 .subtheme-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, 
-    var(--dark-bg) 0%, 
-    #001122 25%, 
-    #002244 50%, 
-    #001133 75%, 
+  background: linear-gradient(135deg,
+    var(--dark-bg) 0%,
+    #001122 25%,
+    #002244 50%,
+    #001133 75%,
     var(--dark-bg) 100%);
   padding: 20px;
   color: var(--text-color);
@@ -124,12 +124,15 @@
   position: relative;
 }
 
-.level-node.unlocked {
+/* Soporte de clases en español e inglés para estados */
+.level-node.unlocked,
+.level-node.desbloqueado {
   border-color: var(--accent-color);
   background: rgba(0, 255, 255, 0.1);
 }
 
-.level-node.unlocked:hover {
+.level-node.unlocked:hover,
+.level-node.desbloqueado:hover {
   background: rgba(0, 255, 255, 0.2);
   transform: translateX(5px);
   box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
@@ -141,7 +144,8 @@
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
 }
 
-.level-node.locked {
+.level-node.locked,
+.level-node.bloqueado {
   opacity: 0.5;
   cursor: not-allowed;
   border-color: #666;
@@ -161,7 +165,8 @@
   flex-shrink: 0;
 }
 
-.level-node.locked .node-number {
+.level-node.locked .node-number,
+.level-node.bloqueado .node-number {
   background: #666;
   color: #333;
 }
@@ -179,7 +184,8 @@
   margin: 0;
 }
 
-.level-node.locked .node-title {
+.level-node.locked .node-title,
+.level-node.bloqueado .node-title {
   color: #888;
 }
 

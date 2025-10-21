@@ -1,6 +1,6 @@
-/* AuthPage.css - Estilos para la página de autenticación */
+/* PaginaAutenticacion.css - Estilos para la página de autenticación */
 
-.auth-page {
+.pagina-autenticacion {
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -9,13 +9,13 @@
     linear-gradient(45deg, transparent 45%, rgba(0, 255, 255, 0.05) 49%, rgba(0, 255, 255, 0.05) 51%, transparent 55%),
     linear-gradient(-45deg, transparent 45%, rgba(0, 255, 255, 0.05) 49%, rgba(0, 255, 255, 0.05) 51%, transparent 55%);
   background-size: 20px 20px;
-  background-color: var(--primary-bg);
+  background-color: var(--fondo-primario);
   position: relative;
   padding: 20px;
 }
 
-.auth-container {
-  background-color: var(--secondary-bg);
+.contenedor-autenticacion {
+  background-color: var(--fondo-secundario);
   border: 3px solid var(--pixel-cyan);
   box-shadow: 
     0 0 20px rgba(0, 255, 255, 0.4),
@@ -30,7 +30,7 @@
   image-rendering: pixelated;
 }
 
-.auth-container::before {
+.contenedor-autenticacion::before {
   content: '';
   position: absolute;
   top: -3px;
@@ -45,14 +45,14 @@
   );
 }
 
-.auth-header {
+.encabezado-autenticacion {
   margin-bottom: 30px;
   text-align: center;
 }
 
-.game-title {
+.titulo-juego {
   font-size: 32px;
-  color: var(--text-primary);
+  color: var(--texto-primario);
   margin-bottom: 20px;
   text-shadow: 
     2px 2px 0 var(--pixel-cyan),
@@ -60,17 +60,17 @@
   letter-spacing: 2px;
 }
 
-.auth-tabs {
+.pestanas-autenticacion {
   display: flex;
   gap: 0;
   margin-bottom: 20px;
 }
 
-.tab-button {
+.boton-pestana {
   flex: 1;
   background-color: transparent;
   border: 2px solid var(--pixel-cyan);
-  color: var(--text-secondary);
+  color: var(--texto-secundario);
   font-family: var(--font-family);
   font-size: 10px;
   padding: 12px 20px;
@@ -80,40 +80,40 @@
   position: relative;
 }
 
-.tab-button:first-child {
+.boton-pestana:first-child {
   border-right: none;
 }
 
-.tab-button:last-child {
+.boton-pestana:last-child {
   border-left: none;
 }
 
-.tab-button.active {
+.boton-pestana.activo {
   background-color: var(--pixel-cyan);
-  color: var(--primary-bg);
+  color: var(--fondo-primario);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-.tab-button:hover:not(.active) {
+.boton-pestana:hover:not(.activo) {
   background-color: rgba(0, 255, 255, 0.1);
-  color: var(--text-primary);
+  color: var(--texto-primario);
 }
 
-.auth-form {
+.formulario-autenticacion {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.input-group {
+.grupo-entrada {
   position: relative;
 }
 
-.pixel-input {
+.entrada-pixel {
   width: 100%;
-  background-color: var(--primary-bg);
+  background-color: var(--fondo-primario);
   border: 2px solid var(--pixel-cyan);
-  color: var(--text-primary);
+  color: var(--texto-primario);
   font-family: var(--font-family);
   font-size: 10px;
   padding: 15px 20px;
@@ -122,22 +122,22 @@
   transition: all 0.2s ease;
 }
 
-.pixel-input::placeholder {
-  color: var(--text-secondary);
+.entrada-pixel::placeholder {
+  color: var(--texto-secundario);
   opacity: 0.8;
 }
 
-.pixel-input:focus {
+.entrada-pixel:focus {
   box-shadow: 
     0 0 10px rgba(0, 255, 255, 0.5),
     inset 0 0 5px rgba(0, 255, 255, 0.2);
   border-color: var(--pixel-cyan-light);
 }
 
-.pixel-button.primary {
+.boton-pixel.primario {
   background-color: var(--pixel-cyan);
-  border: 2px solid var(--text-primary);
-  color: var(--primary-bg);
+  border: 2px solid var(--texto-primario);
+  color: var(--fondo-primario);
   font-family: var(--font-family);
   font-size: 12px;
   padding: 15px 30px;
@@ -149,37 +149,37 @@
   position: relative;
   
   box-shadow: 
-    0 4px 0 var(--text-primary),
+    0 4px 0 var(--texto-primario),
     0 6px 10px rgba(0, 0, 0, 0.3);
 }
 
-.pixel-button.primary:hover {
+.boton-pixel.primario:hover {
   background-color: var(--pixel-cyan-light);
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 var(--text-primary),
+    0 6px 0 var(--texto-primario),
     0 8px 15px rgba(0, 0, 0, 0.4);
 }
 
-.pixel-button.primary:active {
+.boton-pixel.primario:active {
   transform: translateY(2px);
   box-shadow: 
-    0 2px 0 var(--text-primary),
+    0 2px 0 var(--texto-primario),
     0 3px 5px rgba(0, 0, 0, 0.3);
 }
 
-.auth-footer {
+.pie-autenticacion {
   margin-top: 30px;
   text-align: center;
 }
 
-.toggle-text {
-  color: var(--text-secondary);
+.texto-alternar {
+  color: var(--texto-secundario);
   font-size: 10px;
   margin: 0;
 }
 
-.link-button {
+.boton-enlace {
   background: none;
   border: none;
   color: var(--pixel-cyan);
@@ -191,12 +191,12 @@
   transition: color 0.2s ease;
 }
 
-.link-button:hover {
+.boton-enlace:hover {
   color: var(--pixel-cyan-light);
 }
 
 /* Elemento decorativo */
-.pixel-decoration {
+.decoracion-pixel {
   position: fixed;
   bottom: 30px;
   right: 30px;
@@ -224,33 +224,33 @@
 
 /* Efectos responsive */
 @media (max-width: 480px) {
-  .auth-container {
+  .contenedor-autenticacion {
     padding: 30px 20px;
     margin: 10px;
   }
   
-  .game-title {
+  .titulo-juego {
     font-size: 24px;
   }
   
-  .tab-button {
+  .boton-pestana {
     font-size: 8px;
     padding: 10px 15px;
   }
   
-  .pixel-input {
+  .entrada-pixel {
     font-size: 9px;
     padding: 12px 15px;
   }
   
-  .pixel-button.primary {
+  .boton-pixel.primario {
     font-size: 10px;
     padding: 12px 25px;
   }
 }
 
 /* Animación de entrada */
-.auth-container {
+.contenedor-autenticacion {
   animation: slideInFromTop 0.6s ease-out;
 }
 

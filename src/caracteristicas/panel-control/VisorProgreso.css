@@ -1,0 +1,443 @@
+/**
+ * VisorProgreso.css
+ * Estilos para el visor de progreso (RF-013)
+ * Mantiene coherencia con la estética pixel art del dashboard
+ */
+
+.visor-progreso {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  animation: fadeIn 0.3s ease-in;
+  background: rgba(6, 16, 36, 0.85);
+  border: 3px solid rgba(0, 255, 255, 0.25);
+  box-shadow: 0 0 30px rgba(0, 120, 255, 0.2);
+  border-radius: 18px;
+}
+
+.visor-progreso__encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.visor-progreso__encabezado h2 {
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 1.5rem;
+  color: #9b59b6;
+  margin: 0;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.visor-progreso__encabezado p {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  line-height: 1.6;
+  color: #a7c9ff;
+  margin: 10px 0 0;
+  text-shadow: 0 0 6px rgba(0, 200, 255, 0.25);
+}
+
+/* ====== FILTROS ====== */
+.visor-progreso__filtros {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(10, 30, 60, 0.8);
+  border: 3px solid rgba(0, 255, 255, 0.35);
+  padding: 18px 22px;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  border-radius: 12px;
+}
+
+.visor-progreso__filtros label {
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 0.7rem;
+  color: #9be2ff;
+  text-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+}
+
+.visor-progreso__filtros select {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  padding: 12px 15px;
+  border: 3px solid rgba(0, 255, 255, 0.5);
+  background: rgba(3, 18, 38, 0.95);
+  color: #c3e9ff;
+  cursor: pointer;
+  min-width: 220px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.25);
+  text-transform: uppercase;
+  border-radius: 10px;
+}
+
+.visor-progreso__filtros select:disabled {
+  background: rgba(20, 32, 52, 0.6);
+  color: rgba(155, 200, 220, 0.5);
+  cursor: not-allowed;
+}
+
+/* ====== MENSAJES ====== */
+.visor-progreso__mensaje {
+  padding: 15px 20px;
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 0.7rem;
+  margin-bottom: 25px;
+}
+
+.visor-progreso__mensaje--error {
+  background: #e74c3c;
+  color: #ffffff;
+}
+
+/* ====== ESTADO DE CARGA ====== */
+.visor-progreso__carga,
+.visor-progreso__vacio {
+  text-align: center;
+  padding: 60px 20px;
+  border: 3px solid rgba(0, 255, 255, 0.35);
+  background: rgba(12, 26, 54, 0.9);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.25);
+  margin-top: 20px;
+  border-radius: 14px;
+}
+
+.visor-progreso__carga p,
+.visor-progreso__vacio p {
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-top: 15px;
+}
+
+.cargador-pixel {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+  border: 4px solid rgba(0, 255, 255, 0.7);
+  border-top: 4px solid transparent;
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ====== RESUMEN DE PROGRESO ====== */
+.resumen-progreso {
+  margin-bottom: 35px;
+}
+
+.cuadricula-estadisticas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+}
+
+.tarjeta-estadistica {
+  background: linear-gradient(150deg, rgba(8, 22, 46, 0.95) 0%, rgba(4, 14, 30, 0.92) 100%);
+  border: 3px solid rgba(0, 255, 255, 0.25);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 16px;
+}
+
+.tarjeta-estadistica.destacada {
+  background: linear-gradient(140deg, rgba(74, 0, 128, 0.9) 0%, rgba(155, 89, 182, 0.85) 100%);
+  color: #ffffff;
+  border-color: rgba(188, 109, 217, 0.6);
+  box-shadow: 6px 6px 0 rgba(70, 0, 100, 0.5);
+}
+
+.tarjeta-estadistica.destacada .etiqueta-estadistica,
+.tarjeta-estadistica.destacada .ayuda-estadistica {
+  color: #ecf0f1;
+}
+
+.etiqueta-estadistica {
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 0.62rem;
+  color: #8fc2ff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(0, 180, 255, 0.35);
+}
+
+.valor-estadistica {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.9rem;
+  color: #f6fbff;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+.tarjeta-estadistica.destacada .valor-estadistica {
+  color: #ffffff;
+}
+
+.ayuda-estadistica {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: #a8bdda;
+  line-height: 1.6;
+}
+
+.barra-estadistica {
+  width: 100%;
+  height: 22px;
+  border: 3px solid rgba(0, 255, 255, 0.4);
+  background: rgba(5, 20, 40, 0.95);
+  position: relative;
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+}
+
+.barra-estadistica--secundaria {
+  background: rgba(45, 0, 80, 0.7);
+}
+
+.relleno-barra-estadistica {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #00f0ff 0%, #9b59b6 100%);
+  transition: width 0.3s ease;
+  border-radius: 8px;
+}
+
+/* ====== DESEMPEÑO DE PANELES ====== */
+.desempeno-paneles__encabezado {
+  margin-bottom: 20px;
+}
+
+.desempeno-paneles__encabezado h3 {
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 1.15rem;
+  color: #c58bff;
+  margin: 0 0 10px;
+  text-shadow: 0 0 12px rgba(155, 89, 182, 0.6);
+}
+
+.desempeno-paneles__encabezado p {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: #9fb9ff;
+  margin: 0;
+  line-height: 1.6;
+  text-shadow: 0 0 6px rgba(0, 200, 255, 0.25);
+}
+
+.cuadricula-resumen-paneles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.tarjeta-resumen-panel {
+  background: linear-gradient(155deg, rgba(10, 24, 52, 0.95) 0%, rgba(5, 16, 34, 0.9) 100%);
+  border: 3px solid rgba(0, 255, 255, 0.25);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: transform 0.2s;
+  border-radius: 16px;
+}
+
+.tarjeta-resumen-panel:hover {
+  transform: translate(-2px, -2px);
+}
+
+.tarjeta-resumen-panel__encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tarjeta-resumen-panel__titulo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tarjeta-resumen-panel__nombre {
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 0.72rem;
+  color: #e6f5ff;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.35);
+  line-height: 1.45;
+}
+
+.tarjeta-resumen-panel__etiqueta {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.48rem;
+  text-transform: uppercase;
+  color: rgba(140, 200, 255, 0.8);
+  letter-spacing: 1px;
+}
+
+.tarjeta-resumen-panel__completado {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 4px;
+  color: #ffb6ff;
+  text-shadow: 0 0 8px rgba(255, 150, 255, 0.4);
+}
+
+.tarjeta-resumen-panel__porcentaje {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.tarjeta-resumen-panel__completado small {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.48rem;
+  text-transform: uppercase;
+}
+
+.tarjeta-resumen-panel__barra {
+  width: 100%;
+  height: 20px;
+  border: 3px solid rgba(0, 255, 255, 0.3);
+  background: rgba(4, 18, 36, 0.95);
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.tarjeta-resumen-panel__barra-relleno {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #1effd6 0%, #39ffe4 45%, #9b59b6 100%);
+  transition: width 0.3s ease;
+}
+
+.tarjeta-resumen-panel__pie {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 2px dashed rgba(0, 255, 255, 0.25);
+}
+
+.metrica-resumen-panel {
+  background: rgba(5, 20, 40, 0.85);
+  border: 2px solid rgba(0, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: inset 0 0 12px rgba(0, 255, 255, 0.08);
+}
+
+.metrica-resumen-panel__etiqueta {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.48rem;
+  color: rgba(150, 210, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metrica-resumen-panel__valor {
+  font-family: var(--pixel-font, 'Press Start 2P', monospace);
+  font-size: 0.68rem;
+  color: #f1fbff;
+  text-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 960px) {
+  .visor-progreso__encabezado {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .visor-progreso__encabezado h2 {
+    font-size: 1.2rem;
+  }
+
+  .cuadricula-resumen-paneles {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .visor-progreso {
+    padding: 10px;
+  }
+
+  .visor-progreso__filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .visor-progreso__filtros select {
+    width: 100%;
+  }
+
+  .tarjeta-estadistica {
+    padding: 18px;
+  }
+
+  .tarjeta-resumen-panel {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .visor-progreso__encabezado h2 {
+    font-size: 1rem;
+  }
+
+  .visor-progreso__encabezado p {
+    font-size: 0.55rem;
+  }
+
+  .visor-progreso__filtros label {
+    font-size: 0.6rem;
+  }
+
+  .visor-progreso__filtros select {
+    font-size: 0.6rem;
+  }
+
+  .valor-estadistica {
+    font-size: 1.5rem;
+  }
+
+  .tarjeta-resumen-panel__nombre {
+    font-size: 0.65rem;
+  }
+}
+
+/* ====== ANIMACIONES COMPARTIDAS ====== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -14,6 +14,13 @@
   --pixel-cyan-light: #66ffff;
   --pixel-blue: #0088ff;
   
+  /* Variables en español (aliases) */
+  --fondo-primario: var(--primary-bg);
+  --fondo-secundario: var(--secondary-bg);
+  --color-acento: var(--accent-color);
+  --texto-primario: var(--text-primary);
+  --texto-secundario: var(--text-secondary);
+  
   /* Fuente principal */
   --font-family: 'Press Start 2P', monospace;
   --font-size-small: 8px;

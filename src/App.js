@@ -1,59 +1,48 @@
 import React, { useState } from 'react';
-import './styles/global.css';
-import AuthPage from './pages/AuthPage';
-import LaboratoryPage from './pages/LaboratoryPage';
-import SubthemePage from './pages/SubthemePage';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import './estilos/global.css';
+// Importar páginas - usando mix de versiones antiguas y nuevas durante la transición
+import PaginaAutenticacion from './caracteristicas/autenticacion/PaginaAutenticacion';
+import PaginaLaboratorio from './caracteristicas/laboratorio/PaginaLaboratorio';
+import PaginaSubtema from './caracteristicas/subtema/PaginaSubtema';
+import DashboardPage from './paginas/DashboardPage';
+import RutaProtegida from './componentes/RutaProtegida';
+import { useAuth } from './contexto/ContextoAutenticacion';
 
 function App() {
-  // Estado para controlar qué página mostrar
-  const [currentPage, setCurrentPage] = useState('auth'); // 'auth' | 'laboratory' | 'subtheme'
-  const [userData, setUserData] = useState(null);
-  const [selectedPanel, setSelectedPanel] = useState(null);
+  const navegar = useNavigate();
+  const { cerrarSesion, usuario } = useAuth();
+  const [panelSeleccionado, setPanelSeleccionado] = useState(null);
 
-  // Función para manejar login exitoso
-  const handleLogin = (formData) => {
-    console.log('Login exitoso:', formData);
-    setUserData({
-      username: formData.get('username') || 'ExploradorEstelar',
-      loginTime: new Date()
-    });
-    setCurrentPage('laboratory');
-  };
-
-  // Función para manejar registro exitoso
-  const handleRegister = (formData) => {
-    console.log('Registro exitoso:', formData);
-    setUserData({
-      username: formData.get('username') || 'ExploradorEstelar',
-      loginTime: new Date()
-    });
-    setCurrentPage('laboratory');
-  };
-
-  // Función para volver a la pantalla de autenticación
-  const handleBackToAuth = () => {
-    setCurrentPage('auth');
-    setUserData(null);
-    setSelectedPanel(null);
+  // Función para volver a la pantalla de autenticación (logout)
+  const manejarVolverAutenticacion = () => {
+    cerrarSesion();
+    navegar('/');
   };
 
   // Función para seleccionar un panel
-  const handleSelectPanel = (panel) => {
-    console.log('Panel seleccionado:', panel);
-    if (panel.status === 'unlocked') {
-      setSelectedPanel(panel);
-      setCurrentPage('subtheme');
+  const manejarSeleccionarPanel = (panel) => {
+    console.log('📍 App.js - Panel seleccionado:', panel);
+    // Aceptar tanto 'estado' (español) como 'status' (inglés) para compatibilidad
+    const estado = panel.estado || panel.status;
+    console.log('📍 App.js - Estado del panel:', estado);
+    if (estado === 'desbloqueado' || estado === 'unlocked' || estado === 'completado' || estado === 'completed') {
+      console.log('📍 App.js - Navegando a /subtemas');
+      setPanelSeleccionado(panel);
+      navegar('/subtemas');
+    } else {
+      console.log('📍 App.js - Panel bloqueado, no se navega');
     }
   };
 
   // Función para volver al laboratorio desde subtemas
-  const handleBackToLaboratory = () => {
-    setCurrentPage('laboratory');
-    setSelectedPanel(null);
+  const manejarVolverLaboratorio = () => {
+    setPanelSeleccionado(null);
+    navegar('/laboratorio');
   };
 
   // Función para iniciar un nivel específico
-  const handleStartLevel = (panel, level) => {
+  const manejarIniciarNivel = (panel, level) => {
     console.log('Iniciando nivel:', { panel, level });
     // TODO: Navegar a la página del nivel específico
     alert(`¡Próximamente! Nivel "${level.title}" del panel "${panel.title}"`);
@@ -61,29 +50,51 @@ function App() {
 
   return (
     <div className="App">
-      {currentPage === 'auth' && (
-        <AuthPage 
-          onLogin={handleLogin}
-          onRegister={handleRegister}
+      <Routes>
+        {/* Ruta pública - Login/Registro */}
+        <Route 
+          path="/" 
+          element={<PaginaAutenticacion />} 
         />
-      )}
-      
-      {currentPage === 'laboratory' && (
-        <LaboratoryPage 
-          userName={userData?.username}
-          onBackToAuth={handleBackToAuth}
-          onSelectPanel={handleSelectPanel}
+        
+        {/* Rutas protegidas - Requieren autenticación */}
+        <Route 
+          path="/laboratorio" 
+          element={
+            <RutaProtegida>
+              <PaginaLaboratorio 
+                userName={usuario?.nombreUsuario}
+                onBackToAuth={manejarVolverAutenticacion}
+                onSelectPanel={manejarSeleccionarPanel}
+              />
+            </RutaProtegida>
+          } 
         />
-      )}
-
-      {currentPage === 'subtheme' && (
-        <SubthemePage 
-          selectedPanel={selectedPanel}
-          userName={userData?.username}
-          onBackToLaboratory={handleBackToLaboratory}
-          onStartLevel={handleStartLevel}
+        
+        <Route 
+          path="/subtemas" 
+          element={
+            <RutaProtegida>
+              <PaginaSubtema 
+                selectedPanel={panelSeleccionado}
+                userName={usuario?.nombreUsuario}
+                onBackToLaboratory={manejarVolverLaboratorio}
+                onStartLevel={manejarIniciarNivel}
+              />
+            </RutaProtegida>
+          } 
         />
-      )}
+        
+        {/* Ruta del Dashboard - Solo para docentes */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <RutaProtegida>
+              <DashboardPage />
+            </RutaProtegida>
+          } 
+        />
+      </Routes>
     </div>
   );
 }

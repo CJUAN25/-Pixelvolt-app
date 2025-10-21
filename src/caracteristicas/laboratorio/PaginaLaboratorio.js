@@ -1,81 +1,95 @@
 import React from 'react';
-import PanelCard from '../components/PanelCard';
-import './LaboratoryPage.css';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexto/ContextoAutenticacion';
+import TarjetaPanel from '../../componentes/TarjetaPanel';
+import './PaginaLaboratorio.css';
 
-function LaboratoryPage({ userName = "ExploradorEstelar", onBackToAuth, onSelectPanel }) {
+// PaginaLaboratorio: versión en español del laboratorio
+// Acepta props con los nombres antiguos para compatibilidad
+function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBackToAuth: alVolverAutenticacion, onSelectPanel: alSeleccionarPanel }) {
+  const { usuario } = useAuth();
+
   // Datos de los paneles temáticos
-  const panels = [
+  const panelesBase = [
     {
       id: 1,
-      title: "Chatarrería de Robots",
-      subtitle: "(Tutorial Narrativo)",
-      icon: "🤖",
-      status: "unlocked",
-      description: "Aprende las mecánicas básicas de la interfaz mientras reparas a tu robot-tutor"
+      titulo: 'Chatarrería de Robots',
+      subtitulo: '(Tutorial Narrativo)',
+      icono: '🤖',
+      estado: 'desbloqueado',
+      descripcion: 'Aprende las mecánicas básicas de la interfaz mientras reparas a tu robot-tutor'
     },
     {
       id: 2,
-      title: "Electricidad Básica",
-      icon: "💡",
-      status: "locked",
-      description: "Domina los fundamentos de la carga, la Ley de Ohm y los circuitos en serie y paralelo"
+      titulo: 'Electricidad Básica',
+      icono: '💡',
+      estado: 'bloqueado',
+      descripcion: 'Domina los fundamentos de la carga, la Ley de Ohm y los circuitos en serie y paralelo'
     },
     {
       id: 3,
-      title: "Magnetismo",
-      icon: "🧲",
-      status: "locked",
-      description: "Explora los imanes, las líneas de campo magnético y el funcionamiento de la brújula"
+      titulo: 'Magnetismo',
+      icono: '🧲',
+      estado: 'bloqueado',
+      descripcion: 'Explora los imanes, las líneas de campo magnético y el funcionamiento de la brújula'
     },
     {
       id: 4,
-      title: "Inducción de Faraday",
-      icon: "⚡",
-      status: "locked",
-      description: "Descubre la relación entre magnetismo y electricidad, la Ley de Lenz y los generadores"
+      titulo: 'Inducción de Faraday',
+      icono: '⚡',
+      estado: 'bloqueado',
+      descripcion: 'Descubre la relación entre magnetismo y electricidad, la Ley de Lenz y los generadores'
     },
     {
       id: 5,
-      title: "Circuitos Complejos",
-      subtitle: "(RC, RL, RLC)",
-      icon: "🔌",
-      status: "locked",
-      description: "Analiza la carga y descarga de capacitores e inductores en circuitos avanzados"
+      titulo: 'Circuitos Complejos',
+      subtitulo: '(RC, RL, RLC)',
+      icono: '🔌',
+      estado: 'bloqueado',
+      descripcion: 'Analiza la carga y descarga de capacitores e inductores en circuitos avanzados'
     },
     {
       id: 6,
-      title: "Corriente Alterna",
-      subtitle: "(CA) y Aplicaciones",
-      icon: "∿",
-      status: "locked",
-      description: "Aprende sobre la señal de CA y el principio de los transformadores y motores"
+      titulo: 'Corriente Alterna',
+      subtitulo: '(CA) y Aplicaciones',
+      icono: '∿',
+      estado: 'bloqueado',
+      descripcion: 'Aprende sobre la señal de CA y el principio de los transformadores y motores'
     }
   ];
 
-  const handlePanelClick = (panel) => {
-    if (panel.status === 'unlocked' || panel.status === 'completed') {
-      console.log(`Seleccionado panel: ${panel.title}`);
-      onSelectPanel?.(panel);
+  // RF-011: Modo Sandbox - Si es Docente, desbloquear todos los paneles
+  const paneles = usuario?.rol === 'Docente'
+    ? panelesBase.map((p) => ({ ...p, estado: 'desbloqueado' }))
+    : panelesBase;
+
+  const manejarClicPanel = (panel) => {
+    console.log('🎯 Click en panel:', panel.titulo, '| Estado:', panel.estado);
+    if (panel.estado === 'desbloqueado' || panel.estado === 'completado') {
+      console.log('✅ Panel desbloqueado, llamando a alSeleccionarPanel');
+      alSeleccionarPanel?.(panel);
+    } else {
+      console.log('❌ Panel bloqueado, no se puede seleccionar');
     }
   };
 
   return (
     <div className="laboratory-page">
-      {/* Header con información del usuario y título - abarca ambas columnas */}
+      {/* Header */}
       <div className="lab-header">
         <div className="user-info">
           <span className="user-label">USUARIO:</span>
-          <span className="user-name">{userName}</span>
+          <span className="user-name">{nombreUsuario}</span>
         </div>
         <div className="lab-title">
           <h1>PIXELVOLT LABORATORY</h1>
-          <button className="close-button" onClick={onBackToAuth}>✖</button>
+          <button className="close-button" onClick={alVolverAutenticacion}>✖</button>
         </div>
       </div>
 
-      {/* Layout principal de dos columnas */}
+      {/* Layout principal */}
       <div className="lab-main-layout">
-        {/* Columna Izquierda (40%) - Robot y Tienda */}
+        {/* Columna Izquierda */}
         <div className="left-column">
           <div className="robot-section">
             <div className="robot-container">
@@ -97,20 +111,19 @@ function LaboratoryPage({ userName = "ExploradorEstelar", onBackToAuth, onSelect
           </div>
         </div>
 
-        {/* Columna Derecha (60%) - Paneles y Controles */}
+        {/* Columna Derecha */}
         <div className="right-column">
-          {/* Grid de paneles temáticos */}
           <div className="panels-section">
             <div className="panels-grid">
-              {panels.map((panel) => (
-                <PanelCard
+              {paneles.map((panel) => (
+                <TarjetaPanel
                   key={panel.id}
-                  title={panel.title}
-                  subtitle={panel.subtitle}
-                  icon={panel.icon}
-                  status={panel.status}
-                  description={panel.description}
-                  onClick={() => handlePanelClick(panel)}
+                  titulo={panel.titulo}
+                  subtitulo={panel.subtitulo}
+                  icono={panel.icono}
+                  estado={panel.estado}
+                  descripcion={panel.descripcion}
+                  alHacerClic={() => manejarClicPanel(panel)}
                 />
               ))}
             </div>
@@ -122,7 +135,15 @@ function LaboratoryPage({ userName = "ExploradorEstelar", onBackToAuth, onSelect
               <button className="control-button mode-button">
                 <span className="button-text">MODO: RESUELVE Y APLICA</span>
               </button>
-              <button className="control-button logout-button" onClick={onBackToAuth}>
+              
+              {/* Botón de Panel de Control - Solo visible para Docentes */}
+              {usuario?.rol === 'Docente' && (
+                <Link to="/dashboard" className="control-button dashboard-button" style={{ textDecoration: 'none' }}>
+                  <span className="button-text">PANEL DE CONTROL</span>
+                </Link>
+              )}
+              
+              <button className="control-button logout-button" onClick={alVolverAutenticacion}>
                 <span className="button-text">CERRAR SESIÓN</span>
               </button>
             </div>
@@ -139,4 +160,4 @@ function LaboratoryPage({ userName = "ExploradorEstelar", onBackToAuth, onSelect
   );
 }
 
-export default LaboratoryPage;
+export default PaginaLaboratorio;
