@@ -20,7 +20,7 @@ import iconoTransformador from '../../../assets/iconos/herramientas/transformado
 
 export const HERRAMIENTAS_DISPONIBLES = [
   { id: 'cable', nombre: 'Cable Conector', icono: iconoCable, puntosConexion: [] },
-  { id: 'bateria', nombre: 'Batería (CC)', icono: iconoBateria, puntosConexion: [ { x: 0, y: -16 }, { x: 0, y: 16 } ] },
+  { id: 'bateria', nombre: 'Batería (CC)', icono: iconoBateria, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
   { id: 'resistencia-fija', nombre: 'Resistencia Fija', icono: iconoResistencia, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
   { id: 'bombilla', nombre: 'Bombilla', icono: iconoBombilla, puntosConexion: [ { x: -5, y: 14 }, { x: 5, y: 14 } ] },
   { id: 'interruptor', nombre: 'Interruptor', icono: iconoInterruptor, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },

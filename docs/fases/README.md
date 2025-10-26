@@ -158,6 +158,29 @@ Este directorio contiene la documentación completa del proceso de desarrollo de
 
 ---
 
+### ✅ [Fase 6: Simulación Eléctrica Básica, Validación y Progreso](./FASE-6-SIMULACION-BASICA.md)
+
+**Fecha**: 26 de octubre de 2025  
+**Estado**: ✅ Completada
+
+**Resumen**:
+
+- Simulador básico (DFS) para continuidad de circuito y estado de bombillas/interruptores.
+- Integración de simulación con Phaser: actualización visual en tiempo real.
+- Validación de objetivos por nivel con botón [VALIDAR].
+- Guardado de progreso y puntos en localStorage y desbloqueo de niveles.
+- Ajustes UX: herramientas por nivel, conectores de batería laterales.
+
+**Archivos Clave**:
+
+- `src/caracteristicas/juego/phaser/EscenaPrincipal.js`
+- `src/caracteristicas/juego/simulacion/simuladorCircuito.js`
+- `src/caracteristicas/juego/datos/configuracionNiveles.js`
+- `src/caracteristicas/juego/PaginaJuego.js`
+- `src/caracteristicas/subtema/PaginaSubtema.js`
+
+---
+
 ## 🔜 Próximas Fases Planificadas
 
 ### ✅ [Fase 4C: Pantalla de Juego — Layout y Datos Base](./FASE-4C-JUEGO-LAYOUT.md)
@@ -179,15 +202,6 @@ Este directorio contiene la documentación completa del proceso de desarrollo de
 - `src/caracteristicas/juego/datos/definicionHerramientas.js`
 - `src/caracteristicas/juego/datos/configuracionNiveles.js`
 - `src/caracteristicas/subtema/PaginaSubtema.js`
-
-### Fase 6: Implementación de la Simulación Eléctrica Básica
-
-Estado: ⏳ Pendiente
-
-- Detección de circuitos cerrados/abiertos
-- Encendido de bombillas y estados de elementos
-- Validaciones por nivel (objetivos)
-- Cálculos básicos (continuidad, fuentes)
 
 ### Fase 7: Integración con Backend
 
@@ -224,7 +238,8 @@ pixelvolt-app/
 │       ├── FASE-4A-DASHBOARD-GRUPOS.md
 │       ├── FASE-4B-DASHBOARD-PROGRESO.md
 │       ├── FASE-4C-JUEGO-LAYOUT.md
-│       └── FASE-5-JUEGO-SIMULACION.md
+│       ├── FASE-5-JUEGO-SIMULACION.md
+│       └── FASE-6-SIMULACION-BASICA.md
 │
 ├── src/
 │   ├── api/                      # Servicios (español)
@@ -366,10 +381,11 @@ Toda la base de código ha sido migrada a nomenclatura en español:
 - [Fase 4B: Dashboard Progreso](./FASE-4B-DASHBOARD-PROGRESO.md)
 - [Fase 4C: Pantalla de Juego — Layout y Datos Base](./FASE-4C-JUEGO-LAYOUT.md)
 - [Fase 5: Implementación de la Interfaz Interactiva del Juego](./FASE-5-JUEGO-SIMULACION.md)
+- [Fase 6: Simulación Eléctrica Básica, Validación y Progreso](./FASE-6-SIMULACION-BASICA.md)
 
 ---
 
-**Última Actualización**: 25 de octubre de 2025  
-**Versión del Proyecto**: 0.5.1  
+**Última Actualización**: 26 de octubre de 2025  
+**Versión del Proyecto**: 0.6.0  
 **Estado**: En Desarrollo Activo  
 **Idioma del Código**: Español 🇪🇸

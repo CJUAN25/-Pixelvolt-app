@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexto/ContextoAutenticacion';
 import { useNavigate } from 'react-router-dom';
 import './PaginaSubtema.css';
+import PuntosHUD from '../../componentes/PuntosHUD';
 
 function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuario, onBackToLaboratory: alVolverLaboratorio, onStartLevel: alIniciarNivel }) {
   const [nivelSeleccionado, setNivelSeleccionado] = useState(null);
   const { usuario } = useAuth();
   const navegar = useNavigate();
+  const userId = usuario?.id || 'anonimo';
+  const [progresoUsuario, setProgresoUsuario] = useState({ nivelesCompletados: {}, puntos: 0 });
+
+  useEffect(() => {
+    const claveProgreso = `pixelvolt_progreso_${userId}`;
+    try {
+      const guardado = localStorage.getItem(claveProgreso);
+      if (guardado) {
+        setProgresoUsuario(JSON.parse(guardado));
+      } else {
+        setProgresoUsuario({ nivelesCompletados: {}, puntos: 0 });
+      }
+    } catch (e) {
+      console.error('Error al cargar progreso en PaginaSubtema:', e);
+    }
+  }, [userId]);
 
   const subtemasPorPanel = {
     // Panel 1: Chatarrería (Tutorial)
@@ -94,9 +111,29 @@ function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuar
 
   const panelActual = subtemasPorPanel[panelSeleccionado?.id] || subtemasPorPanel[2];
 
+  // Calcular estados en base al progreso del usuario
+  const nivelesCalculados = panelActual.niveles.map((nivel, index) => {
+    const panelIdString = String(panelSeleccionado?.id || 2);
+    const nivelIdString = String(nivel.id);
+    const estaCompletado = !!progresoUsuario.nivelesCompletados?.[panelIdString]?.[nivelIdString];
+
+    let estadoDeterminado = 'bloqueado';
+    if (estaCompletado) {
+      estadoDeterminado = 'completado';
+    } else if (index === 0) {
+      estadoDeterminado = 'desbloqueado';
+    } else {
+      const nivelAnteriorIdString = String(panelActual.niveles[index - 1].id);
+      const anteriorCompletado = !!progresoUsuario.nivelesCompletados?.[panelIdString]?.[nivelAnteriorIdString];
+      if (anteriorCompletado) estadoDeterminado = 'desbloqueado';
+    }
+
+    return { ...nivel, estado: estadoDeterminado };
+  });
+
   const nivelesActuales = usuario?.rol === 'Docente'
-    ? panelActual.niveles.map(n => ({ ...n, estado: 'desbloqueado' }))
-    : panelActual.niveles;
+    ? nivelesCalculados.map(n => ({ ...n, estado: 'desbloqueado' }))
+    : nivelesCalculados;
 
   const manejarClickNivel = (nivel) => {
     if (nivel.estado === 'desbloqueado') {
@@ -125,6 +162,7 @@ function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuar
 
   return (
     <div className="subtheme-page">
+      <PuntosHUD />
       <div className="subtheme-header">
         <div className="user-info">
           <span className="user-label">USUARIO:</span>
@@ -152,7 +190,7 @@ function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuar
                   <div className="node-content">
                     <h4 className="node-title">{nivel.titulo}</h4>
                     <div className="node-status-icon">
-                      {nivel.estado === 'desbloqueado' ? '🔓' : '🔒'}
+                      {nivel.estado === 'completado' ? '✔️' : (nivel.estado === 'desbloqueado' ? '🔓' : '🔒')}
                     </div>
                   </div>
                 </div>

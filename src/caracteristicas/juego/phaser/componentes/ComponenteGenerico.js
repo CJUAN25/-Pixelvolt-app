@@ -116,6 +116,16 @@ class ComponenteGenerico extends Phaser.GameObjects.Container {
           // Eliminar cables conectados
           this.eliminarCablesConectados(scene);
           
+          // Notificar a la escena y actualizar lista de componentes antes de destruir
+          if (scene) {
+            if (Array.isArray(scene.componentesActivos)) {
+              scene.componentesActivos = scene.componentesActivos.filter(c => c !== this);
+            }
+            if (typeof scene.actualizarEstadoVisualCircuito === 'function') {
+              scene.actualizarEstadoVisualCircuito();
+            }
+          }
+          
           // Destruir el componente
           this.destroy();
           return;
@@ -136,44 +146,16 @@ class ComponenteGenerico extends Phaser.GameObjects.Container {
    * @param {Phaser.Scene} scene - Escena de Phaser
    */
   eliminarCablesConectados(scene) {
-    if (scene.conexionesPorComponente.has(this)) {
-      const cablesConectados = scene.conexionesPorComponente.get(this);
-      
-      cablesConectados.forEach(cableInfo => {
-        // Destruir gráfico del cable
-        if (cableInfo.grafico) {
-          cableInfo.grafico.destroy();
-        }
-        
-        // Eliminar de cablesCreados
-        const index = scene.cablesCreados.findIndex(c => c === cableInfo);
-        if (index > -1) {
-          scene.cablesCreados.splice(index, 1);
-        }
-        
-        // Limpiar referencia en el otro componente
-        const otroContenedor = cableInfo.puntoInicio.contenedor === this 
-          ? cableInfo.puntoFin.contenedor 
-          : cableInfo.puntoInicio.contenedor;
-        
-        if (scene.conexionesPorComponente.has(otroContenedor)) {
-          scene.conexionesPorComponente.get(otroContenedor).delete(cableInfo);
-        }
-        
-        // Limpiar referencias en cablePorPuntoVisual
-        if (cableInfo.puntoVisualInicio) {
-          scene.cablePorPuntoVisual.delete(cableInfo.puntoVisualInicio);
-        }
-        if (cableInfo.puntoVisualFin) {
-          scene.cablePorPuntoVisual.delete(cableInfo.puntoVisualFin);
+    if (scene && scene.conexionesPorComponente && scene.conexionesPorComponente.has(this)) {
+      const cablesAEliminar = Array.from(scene.conexionesPorComponente.get(this));
+      cablesAEliminar.forEach((cableInfo) => {
+        if (typeof scene.eliminarCable === 'function') {
+          scene.eliminarCable(cableInfo);
         }
       });
-      
-      // Eliminar del mapa principal
       scene.conexionesPorComponente.delete(this);
-      
       const nombreComponente = this.getData('herramientaInfo')?.nombre || 'Componente';
-      console.log(`🗑️ ${nombreComponente} eliminado con ${cablesConectados.size} cables conectados`);
+      console.log(`🗑️ ${nombreComponente} eliminado con ${cablesAEliminar.length} cables conectados`);
     }
   }
 }

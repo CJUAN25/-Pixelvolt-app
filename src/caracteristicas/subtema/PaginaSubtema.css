@@ -151,6 +151,18 @@
   border-color: #666;
 }
 
+/* Estado completado */
+.level-node.completado {
+  border-color: #44cc44;
+  background: rgba(68, 204, 68, 0.15);
+  box-shadow: 0 0 15px rgba(68, 204, 68, 0.2);
+}
+
+.level-node.completado .node-number {
+  background: #44cc44;
+  color: #072a07;
+}
+
 .node-number {
   display: flex;
   align-items: center;

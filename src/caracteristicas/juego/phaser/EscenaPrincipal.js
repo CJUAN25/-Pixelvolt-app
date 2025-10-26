@@ -5,6 +5,7 @@ import BateriaComponente from './componentes/BateriaComponente';
 import ResistenciaComponente from './componentes/ResistenciaComponente';
 import InterruptorComponente from './componentes/InterruptorComponente';
 import ComponenteGenerico from './componentes/ComponenteGenerico';
+import { analizarEstadoCircuito } from '../simulacion/simuladorCircuito';
 
 class EscenaPrincipal extends Phaser.Scene {
   constructor() {
@@ -30,6 +31,12 @@ class EscenaPrincipal extends Phaser.Scene {
     // Registrar listener para redimensionamiento
     this.scale.on('resize', this.redibujarCuadricula, this);
 
+    // Configuración del nivel (puede haberse establecido antes de create desde LienzoJuego)
+    // No sobrescribir si ya existe
+    if (typeof this.configuracionNivel === 'undefined') {
+      this.configuracionNivel = null;
+    }
+
     // Variables de estado para dibujo de cables
     this.estaDibujandoCable = false;
     this.puntoInicioCable = null; // { objeto: Container, punto: {x, y}, puntoVisual: Arc }
@@ -37,9 +44,11 @@ class EscenaPrincipal extends Phaser.Scene {
     this.puntosIntermediosCable = []; // Array de {x, y} para segmentos
     this.cablesCreados = []; // Array de cables permanentes
     
-    // Estructuras de datos para modelo de conectividad
+  // Estructuras de datos para modelo de conectividad
     this.conexionesPorComponente = new Map(); // Clave: Container, Valor: Set<cableInfo>
     this.cablePorPuntoVisual = new Map(); // Clave: puntoVisual (Circle), Valor: cableInfo
+  // Lista de componentes activos en escena para simulación
+  this.componentesActivos = [];
 
     // Listeners globales para drag-and-drop
     // (Opcional) prevenir menú contextual del navegador en el canvas
@@ -305,6 +314,10 @@ class EscenaPrincipal extends Phaser.Scene {
     
     // Añadir el componente a la escena
     this.add.existing(nuevoComponente);
+    // Registrar en la lista de componentes activos
+    if (Array.isArray(this.componentesActivos)) {
+      this.componentesActivos.push(nuevoComponente);
+    }
     
     console.log(`✅ Componente ${herramienta.nombre} añadido al lienzo`);
   }
@@ -420,6 +433,91 @@ class EscenaPrincipal extends Phaser.Scene {
       
       // Guardar el cable en la lista (codos incluye inicio y fin ahora)
       const codosParaGuardar = [...this.puntosIntermediosCable];
+
+      // Definir hit area interactiva para permitir doble clic de eliminación
+      if (codosParaGuardar && codosParaGuardar.length >= 2) {
+        // Reconstruir los segmentos ortogonales H y V usados para dibujar
+        const segmentos = [];
+        for (let i = 1; i < codosParaGuardar.length; i++) {
+          const p1 = codosParaGuardar[i - 1];
+          const p2 = codosParaGuardar[i];
+          // Segmento horizontal p1 -> (p2.x, p1.y)
+          segmentos.push({ a: { x: p1.x, y: p1.y }, b: { x: p2.x, y: p1.y } });
+          // Segmento vertical (p2.x, p1.y) -> p2
+          segmentos.push({ a: { x: p2.x, y: p1.y }, b: { x: p2.x, y: p2.y } });
+        }
+
+        const hitAreaCallback = (segs, x, y) => {
+          const tol = 6; // tolerancia en píxeles
+          for (const seg of segs) {
+            const ax = seg.a.x, ay = seg.a.y;
+            const bx = seg.b.x, by = seg.b.y;
+            if (ay === by) {
+              // Horizontal
+              const minX = Math.min(ax, bx) - tol;
+              const maxX = Math.max(ax, bx) + tol;
+              if (x >= minX && x <= maxX && Math.abs(y - ay) <= tol) return true;
+            } else if (ax === bx) {
+              // Vertical
+              const minY = Math.min(ay, by) - tol;
+              const maxY = Math.max(ay, by) + tol;
+              if (y >= minY && y <= maxY && Math.abs(x - ax) <= tol) return true;
+            }
+          }
+          return false;
+        };
+
+        // Hacer el gráfico interactivo con el callback personalizado
+        cablePermanente.setInteractive(segmentos, hitAreaCallback, false);
+        // Cursor tipo mano al pasar por encima
+        if (cablePermanente.input) {
+          cablePermanente.input.cursor = 'pointer';
+        }
+        // Apariencia por defecto ligeramente translúcida
+        cablePermanente.setAlpha(0.95);
+        
+        // Indicador visual al pasar el mouse por encima del cable
+        cablePermanente.on('pointerover', () => {
+          cablePermanente.setAlpha(1.0);
+          cablePermanente.setBlendMode(Phaser.BlendModes.ADD);
+        });
+        cablePermanente.on('pointerout', () => {
+          cablePermanente.setAlpha(0.95);
+          cablePermanente.setBlendMode(Phaser.BlendModes.NORMAL);
+        });
+
+        // Listener para doble clic izquierdo en el cable
+        cablePermanente.on('pointerdown', (pointer) => {
+          if (pointer.leftButtonDown()) {
+            const now = this.time?.now ?? performance.now();
+            const lastDownTime = cablePermanente.getData('lastDownTime') || 0;
+            const lastDownX = cablePermanente.getData('lastDownX');
+            const lastDownY = cablePermanente.getData('lastDownY');
+            const dblTime = 350; // ms
+            const dblDist = 12; // px
+            const posDeltaDown = (typeof lastDownX === 'number' && typeof lastDownY === 'number')
+              ? Phaser.Math.Distance.Between(lastDownX, lastDownY, pointer.x, pointer.y)
+              : Number.MAX_SAFE_INTEGER;
+
+            if (lastDownTime && (now - lastDownTime) <= dblTime && posDeltaDown <= dblDist) {
+              // Reset y eliminar cable
+              cablePermanente.setData('lastDownTime', 0);
+              const info = cablePermanente.getData('cableInfo');
+              if (info) {
+                this.eliminarCable(info);
+              } else {
+                console.error('No se encontró cableInfo para eliminar.');
+              }
+            } else {
+              cablePermanente.setData('lastDownTime', now);
+              cablePermanente.setData('lastDownX', pointer.x);
+              cablePermanente.setData('lastDownY', pointer.y);
+            }
+          }
+        });
+      } else {
+        console.warn('No se pudo crear hit area para cable sin suficientes puntos.');
+      }
       
       const cableInfo = {
         grafico: cablePermanente,
@@ -433,6 +531,8 @@ class EscenaPrincipal extends Phaser.Scene {
       };
       
       this.cablesCreados.push(cableInfo);
+      // Guardar referencia inversa en el gráfico
+      cablePermanente.setData('cableInfo', cableInfo);
       
       // Registrar en el modelo de conectividad
       // 1. Registrar en conexionesPorComponente
@@ -449,7 +549,7 @@ class EscenaPrincipal extends Phaser.Scene {
       }
       this.conexionesPorComponente.get(contFin).add(cableInfo);
       
-      // 2. Registrar en cablePorPuntoVisual
+  // 2. Registrar en cablePorPuntoVisual
       this.cablePorPuntoVisual.set(cableInfo.puntoVisualInicio, cableInfo);
       this.cablePorPuntoVisual.set(cableInfo.puntoVisualFin, cableInfo);
       
@@ -457,6 +557,11 @@ class EscenaPrincipal extends Phaser.Scene {
       console.log(`✅ CABLE CONECTADO: ${herramientaInicio.nombre} → ${herramientaFin.nombre}`);
       console.log(`   Puntos en la ruta: ${this.puntosIntermediosCable.length} (incluye inicio y fin)`);
       console.log(`   Total de cables: ${this.cablesCreados.length}`);
+
+      // Recalcular el estado visual del circuito (encender/apagar bombillas)
+      if (typeof this.actualizarEstadoVisualCircuito === 'function') {
+        this.actualizarEstadoVisualCircuito();
+      }
       
       // Limpieza: destruir gráfico temporal y resetear estado
       if (this.cableGraficoActual) {
@@ -471,10 +576,152 @@ class EscenaPrincipal extends Phaser.Scene {
     // Si NO es válido, no hacer nada (dejar que el usuario siga dibujando)
   }
 
+  /**
+   * Elimina un cable del modelo y de la escena visual.
+   * @param {Object} cableInfo
+   */
+  eliminarCable(cableInfo) {
+    if (!cableInfo) return;
+
+    console.log(`🗑️ Eliminando cable entre ${cableInfo.herramientaInicio?.nombre || '?'} y ${cableInfo.herramientaFin?.nombre || '?'}`);
+
+    // 1. Eliminar de la lista principal de cables
+    const index = this.cablesCreados.findIndex(c => c === cableInfo);
+    if (index > -1) {
+      this.cablesCreados.splice(index, 1);
+    }
+
+    // 2. Eliminar de conexionesPorComponente para ambos extremos
+    const compInicio = cableInfo.puntoInicio?.contenedor;
+    const compFin = cableInfo.puntoFin?.contenedor;
+    if (compInicio && this.conexionesPorComponente.has(compInicio)) {
+      this.conexionesPorComponente.get(compInicio).delete(cableInfo);
+      if (this.conexionesPorComponente.get(compInicio).size === 0) {
+        this.conexionesPorComponente.delete(compInicio);
+      }
+    }
+    if (compFin && this.conexionesPorComponente.has(compFin)) {
+      this.conexionesPorComponente.get(compFin).delete(cableInfo);
+      if (this.conexionesPorComponente.get(compFin).size === 0) {
+        this.conexionesPorComponente.delete(compFin);
+      }
+    }
+
+    // 3. Eliminar de cablePorPuntoVisual para ambos puntos visuales
+    if (cableInfo.puntoVisualInicio) {
+      this.cablePorPuntoVisual.delete(cableInfo.puntoVisualInicio);
+    }
+    if (cableInfo.puntoVisualFin) {
+      this.cablePorPuntoVisual.delete(cableInfo.puntoVisualFin);
+    }
+
+    // 4. Destruir el objeto Graphics del cable
+    if (cableInfo.grafico && !cableInfo.grafico.destroyed) {
+      cableInfo.grafico.destroy();
+    }
+
+    // 5. Actualizar el estado visual del circuito
+    if (typeof this.actualizarEstadoVisualCircuito === 'function') {
+      this.actualizarEstadoVisualCircuito();
+    }
+  }
+
+  /**
+   * Evalúa el circuito actual y actualiza el estado visual de las bombillas.
+   */
+  actualizarEstadoVisualCircuito() {
+    try {
+      const componentes = (Array.isArray(this.componentesActivos) && this.componentesActivos.length > 0)
+        ? this.componentesActivos
+        : Array.from(this.conexionesPorComponente.keys());
+      const bombillasEncendidas = analizarEstadoCircuito(componentes, this.conexionesPorComponente);
+
+      // Actualizar estado visual de todas las bombillas conocidas
+      const lista = Array.isArray(this.componentesActivos) && this.componentesActivos.length > 0
+        ? this.componentesActivos
+        : this.children.list;
+
+      lista.forEach((comp) => {
+        if (comp instanceof BombillaComponente) {
+          if (bombillasEncendidas.has(comp)) {
+            comp.encender?.();
+          } else {
+            comp.apagar?.();
+          }
+        }
+      });
+    } catch (e) {
+      console.warn('Error al actualizar estado visual del circuito:', e);
+    }
+  }
+
   esPuntoDeConexion(objeto) {
     // Verifica si el objeto tiene los datos que asignamos a los puntos de conexión
     if (!objeto || !objeto.getData) return false;
     return objeto.getData('contenedorPadre') !== undefined && objeto.getData('posRelativa') !== undefined;
+  }
+
+  /**
+   * Establece la configuración del nivel desde el componente React.
+   * @param {Object} config - Configuración del nivel con herramientas, objetivoTexto y objetivoValidacion
+   */
+  establecerConfiguracionNivel(config) {
+    this.configuracionNivel = config;
+  }
+
+  /**
+   * Valida si el circuito actual cumple con los objetivos del nivel.
+   * @returns {boolean} - true si cumple, false en caso contrario
+   */
+  validarSolucionNivel() {
+    if (!this.configuracionNivel || !this.configuracionNivel.objetivoValidacion) {
+      console.warn('No hay configuración de objetivos para validar');
+      return false;
+    }
+
+    const objetivos = this.configuracionNivel.objetivoValidacion;
+    const componentes = (Array.isArray(this.componentesActivos) && this.componentesActivos.length > 0)
+      ? this.componentesActivos
+      : Array.from(this.conexionesPorComponente.keys());
+
+      console.log('🔍 Validación - Componentes en escena:', componentes.length);
+      console.log('🔍 Validación - Objetivos:', objetivos);
+
+    // Obtener estado actual del circuito
+    const bombillasEncendidas = analizarEstadoCircuito(componentes, this.conexionesPorComponente);
+
+      console.log('🔍 Validación - Bombillas encendidas:', bombillasEncendidas.size);
+      console.log('🔍 Validación - Bombillas encendidas (detalle):', Array.from(bombillasEncendidas));
+
+    // Contar interruptores cerrados
+    let interruptoresCerrados = 0;
+    componentes.forEach((comp) => {
+      if (comp instanceof InterruptorComponente && comp.obtenerEstado?.() === true) {
+        interruptoresCerrados++;
+      }
+    });
+
+      console.log('🔍 Validación - Interruptores cerrados:', interruptoresCerrados);
+
+    // Validar objetivos
+    let cumple = true;
+
+    if (objetivos.bombillasEncendidasMin !== undefined) {
+        console.log(`🔍 Validación - Comparando bombillas: ${bombillasEncendidas.size} >= ${objetivos.bombillasEncendidasMin}`);
+      if (bombillasEncendidas.size < objetivos.bombillasEncendidasMin) {
+        cumple = false;
+      }
+    }
+
+    if (objetivos.interruptoresCerradosMin !== undefined) {
+        console.log(`🔍 Validación - Comparando interruptores: ${interruptoresCerrados} >= ${objetivos.interruptoresCerradosMin}`);
+      if (interruptoresCerrados < objetivos.interruptoresCerradosMin) {
+        cumple = false;
+      }
+    }
+
+      console.log('🔍 Validación - Resultado final:', cumple);
+    return cumple;
   }
 
   shutdown() {

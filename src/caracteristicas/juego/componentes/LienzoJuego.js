@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import EscenaPrincipal from '../phaser/EscenaPrincipal';
 
-const LienzoJuego = forwardRef((props, ref) => {
+const LienzoJuego = forwardRef(({ configuracionNivel }, ref) => {
   const contenedorPhaserRef = useRef(null);
   const juegoRef = useRef(null);
 
@@ -19,6 +19,10 @@ const LienzoJuego = forwardRef((props, ref) => {
       const escena = juegoRef.current?.scene.getScene('EscenaPrincipal');
       // Redirigir al nuevo método que usa imágenes
       escena?.agregarElementoJuego(herramienta);
+    },
+    ejecutarValidacion: () => {
+      const escena = juegoRef.current?.scene.getScene('EscenaPrincipal');
+      return escena?.validarSolucionNivel() || false;
     },
   }));
 
@@ -46,6 +50,21 @@ const LienzoJuego = forwardRef((props, ref) => {
         };
 
         juegoRef.current = new Phaser.Game(config);
+
+        // Pasar la configuración del nivel a la escena cuando esté lista (reintentos cortos)
+        const intentarAplicarConfig = (intentosRestantes = 20) => {
+          try {
+            const escena = juegoRef.current?.scene.getScene('EscenaPrincipal');
+            if (escena && configuracionNivel) {
+              escena.establecerConfiguracionNivel(configuracionNivel);
+              return; // aplicado
+            }
+          } catch (_) { /* no-op */ }
+          if (intentosRestantes > 0) {
+            setTimeout(() => intentarAplicarConfig(intentosRestantes - 1), 50);
+          }
+        };
+        intentarAplicarConfig();
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error inicializando Phaser:', e);
@@ -65,7 +84,7 @@ const LienzoJuego = forwardRef((props, ref) => {
         }
       }
     };
-  }, []);
+  }, [configuracionNivel]);
 
   return <div ref={contenedorPhaserRef} className="contenedor-phaser" />;
 });

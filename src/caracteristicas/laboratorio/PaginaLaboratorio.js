@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexto/ContextoAutenticacion';
 import TarjetaPanel from '../../componentes/TarjetaPanel';
+import PuntosHUD from '../../componentes/PuntosHUD';
 import './PaginaLaboratorio.css';
 
 // PaginaLaboratorio: versión en español del laboratorio
@@ -59,9 +60,12 @@ function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBa
   ];
 
   // RF-011: Modo Sandbox - Si es Docente, desbloquear todos los paneles
+  // Desbloqueo de paneles según rol
+  // - Docente: todos desbloqueados (modo sandbox)
+  // - Estudiante: el Panel 2 (Electricidad Básica) SIEMPRE desbloqueado; el resto mantiene su estado
   const paneles = usuario?.rol === 'Docente'
     ? panelesBase.map((p) => ({ ...p, estado: 'desbloqueado' }))
-    : panelesBase;
+    : panelesBase.map((p) => (p.id === 2 ? { ...p, estado: 'desbloqueado' } : p));
 
   const manejarClicPanel = (panel) => {
     console.log('🎯 Click en panel:', panel.titulo, '| Estado:', panel.estado);
@@ -75,6 +79,7 @@ function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBa
 
   return (
     <div className="laboratory-page">
+      <PuntosHUD />
       {/* Header */}
       <div className="lab-header">
         <div className="user-info">

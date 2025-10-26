@@ -1,0 +1,31 @@
+.puntos-hud {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  background: rgba(0, 20, 40, 0.85);
+  border: 2px solid var(--accent-color, #00ffff);
+  color: var(--accent-color, #00ffff);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-family: var(--pixel-font, monospace);
+  font-size: 14px;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.puntos-hud .icono {
+  filter: drop-shadow(0 0 4px rgba(0,255,255,0.6));
+}
+
+@media (max-width: 768px) {
+  .puntos-hud {
+    top: auto;
+    bottom: 12px;
+    right: 12px;
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+}
