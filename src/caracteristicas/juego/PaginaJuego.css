@@ -1,0 +1,306 @@
+/* Estilos base para la pantalla de juego PixelVolt */
+.pagina-juego {
+  --pv-gap: 12px;
+  --pv-borde: 2px;
+  --pv-cyan: var(--pixel-cyan, #00e5ff);
+  --pv-magenta: var(--pixel-magenta, #ff3ab3);
+  --pv-amarillo: var(--pixel-yellow, #ffe066);
+  --pv-verde: #5cf27a;
+  --pv-rojo: #ff5a6a;
+  --pv-fondo-oscuro: var(--fondo-primario, #0f1420);
+  --pv-fondo-panel: var(--fondo-secundario, #171c2b);
+
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--pv-fondo-oscuro);
+  color: #e6f6ff;
+  font-family: var(--font-family, 'Press Start 2P', monospace);
+  display: grid;
+  grid-template-rows: auto 1fr;
+}/* Cabecera */
+.cabecera-juego {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--pv-gap);
+	align-items: center;
+	padding: 10px 12px;
+}
+
+.cabecera-juego .titulo-nivel {
+	margin: 0;
+	font-size: 11px;
+	color: var(--pv-cyan);
+	border: var(--pv-borde) solid var(--pv-cyan);
+	padding: 8px 10px;
+	background: var(--pv-fondo-panel);
+}
+
+.cabecera-juego .objetivo-nivel {
+	justify-self: end;
+	font-size: 10px;
+	border: var(--pv-borde) solid var(--pv-cyan);
+	padding: 8px 10px;
+	background: var(--pv-fondo-panel);
+}
+
+/* Layout principal: 2 columnas, 2 filas (simulación/tutor a la izquierda, toolbox/controles a la derecha) */
+.layout-juego {
+	display: grid;
+	grid-template-columns: 2fr 1fr; /* simulación más ancha */
+	grid-template-rows: 1fr auto;
+	grid-template-areas:
+		'simulacion herramientas'
+		'tutor controles';
+	gap: var(--pv-gap);
+	padding: 0 12px 12px;
+	height: 100%;
+	overflow: hidden;
+}
+
+.area-simulacion {
+	grid-area: simulacion;
+	border: var(--pv-borde) solid var(--pv-cyan);
+	background: var(--pv-fondo-panel);
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.marco-simulacion {
+	flex: 1;
+	min-height: 0;
+	border: var(--pv-borde) solid var(--pv-cyan);
+	background: repeating-linear-gradient(
+			to right,
+			rgba(0, 229, 255, 0.1) 0 24px,
+			transparent 24px 48px
+		),
+		repeating-linear-gradient(
+			to bottom,
+			rgba(0, 229, 255, 0.1) 0 24px,
+			transparent 24px 48px
+		);
+	display: grid;
+	place-items: stretch;
+}
+
+.contenedor-phaser {
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+}
+
+.placeholder-simulacion {
+	border: 2px dashed var(--pv-cyan);
+	padding: 10px;
+	font-size: 10px;
+	text-align: center;
+	opacity: 0.85;
+}
+
+.caja-herramientas {
+	grid-area: herramientas;
+	border: var(--pv-borde) solid var(--pv-cyan);
+	background: var(--pv-fondo-panel);
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.caja-herramientas h3 {
+	margin: 0 0 10px;
+	font-size: 12px;
+	color: var(--pv-cyan);
+	flex-shrink: 0;
+}
+
+.lista-herramientas {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 8px;
+	overflow-y: auto;
+	flex: 1;
+	min-height: 0;
+	padding-right: 4px;
+}
+
+.lista-herramientas::-webkit-scrollbar {
+	width: 8px;
+}
+
+.lista-herramientas::-webkit-scrollbar-track {
+	background: rgba(0, 229, 255, 0.1);
+}
+
+.lista-herramientas::-webkit-scrollbar-thumb {
+	background: var(--pv-cyan);
+	border: 1px solid var(--pv-fondo-panel);
+}
+
+.lista-herramientas li {
+	border: var(--pv-borde) solid var(--pv-cyan);
+	padding: 10px 8px;
+	margin-bottom: 4px;
+	background: rgba(0, 229, 255, 0.06);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 10px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.lista-herramientas li:hover {
+	background-color: rgba(0, 229, 255, 0.15);
+}
+
+.icono-herramienta {
+	width: 60px;
+	height: 60px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.icono-herramienta img {
+	width: 80px;
+	height: 80px;
+	object-fit: contain;
+	image-rendering: pixelated;
+}
+
+.nombre-herramienta {
+	flex: 1;
+	font-size: 0.65rem;
+	line-height: 1.3;
+	color: var(--pv-cyan);
+}
+
+.sin-herramientas {
+	margin: 0;
+	padding: 8px;
+	border: var(--pv-borde) dashed var(--pv-cyan);
+	background: rgba(0, 229, 255, 0.06);
+}
+
+.panel-tutor {
+	grid-area: tutor;
+	border: var(--pv-borde) solid var(--pv-cyan);
+	background: var(--pv-fondo-panel);
+	padding: 10px;
+	display: grid;
+	grid-template-columns: 60px 1fr;
+	gap: 10px;
+	align-items: start;
+	min-height: 0;
+}
+
+.avatar-tutor {
+	width: 60px;
+	height: 60px;
+	background: linear-gradient(135deg, var(--pv-cyan), var(--pv-magenta));
+	border: var(--pv-borde) solid var(--pv-cyan);
+	flex-shrink: 0;
+}
+
+.dialogo-tutor {
+	border: var(--pv-borde) solid var(--pv-cyan);
+	padding: 8px;
+	font-size: 9px;
+	line-height: 1.4;
+	background: rgba(0, 229, 255, 0.06);
+}
+
+.dialogo-tutor strong {
+	display: block;
+	margin-bottom: 10px;
+	color: var(--pv-cyan);
+}
+
+.dialogo-tutor p {
+	margin: 0;
+}
+
+.controles-nivel {
+	grid-area: controles;
+	border: var(--pv-borde) solid var(--pv-cyan);
+	background: var(--pv-fondo-panel);
+	padding: 10px;
+	display: grid;
+	grid-template-rows: auto 1fr;
+	gap: 10px;
+	min-height: 0;
+}
+
+/* Botón pixel base */
+.boton-pixel {
+	font-family: inherit;
+	font-size: 10px;
+	letter-spacing: 1px;
+	color: #081018;
+	padding: 8px 12px;
+	border: var(--pv-borde) solid #0a0a0a;
+	box-shadow: 0 0 0 var(--pv-borde) var(--pv-cyan) inset, 3px 3px 0 0 rgba(0, 0, 0, 0.5);
+	background: #bdefff;
+	cursor: pointer;
+	transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.titulo-controles {
+	margin: 0;
+	text-align: center;
+	font-size: 11px;
+	color: var(--pv-cyan);
+	border: var(--pv-borde) solid var(--pv-cyan);
+	padding: 6px 8px;
+}
+
+.grupo-botones {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-content: start;
+}
+
+.boton-pixel:active {
+	transform: translate(2px, 2px);
+	box-shadow: 0 0 0 var(--pv-borde) var(--pv-cyan) inset, 2px 2px 0 0 rgba(0, 0, 0, 0.5);
+}
+
+.boton-pixel.validar { background: var(--pv-verde); }
+.boton-pixel.pista { background: var(--pv-amarillo); }
+.boton-pixel.reiniciar { background: #83b6ff; }
+.boton-pixel.salir { background: var(--pv-rojo); }
+
+/* Responsive básico */
+@media (max-width: 768px) {
+	.cabecera-juego {
+		grid-template-columns: 1fr;
+	}
+
+	.cabecera-juego .objetivo-nivel {
+		justify-self: start;
+	}
+
+	.layout-juego {
+		grid-template-columns: 1fr;
+		grid-template-rows: auto;
+		grid-template-areas:
+			'simulacion'
+			'herramientas'
+			'tutor'
+			'controles';
+	}
+
+	.controles-nivel {
+		justify-content: space-between;
+	}
+}
+

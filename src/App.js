@@ -4,6 +4,7 @@ import './estilos/global.css';
 // Importar páginas - usando mix de versiones antiguas y nuevas durante la transición
 import PaginaAutenticacion from './caracteristicas/autenticacion/PaginaAutenticacion';
 import PaginaLaboratorio from './caracteristicas/laboratorio/PaginaLaboratorio';
+import PaginaJuego from './caracteristicas/juego/PaginaJuego';
 import PaginaSubtema from './caracteristicas/subtema/PaginaSubtema';
 import DashboardPage from './paginas/DashboardPage';
 import RutaProtegida from './componentes/RutaProtegida';
@@ -81,6 +82,16 @@ function App() {
                 onBackToLaboratory={manejarVolverLaboratorio}
                 onStartLevel={manejarIniciarNivel}
               />
+            </RutaProtegida>
+          } 
+        />
+
+        {/* Ruta del juego - contenedor de niveles */}
+        <Route 
+          path="/juego/:panelId/:nivelId" 
+          element={
+            <RutaProtegida>
+              <PaginaJuego />
             </RutaProtegida>
           } 
         />

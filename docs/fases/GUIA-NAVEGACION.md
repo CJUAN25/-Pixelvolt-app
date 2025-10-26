@@ -13,6 +13,7 @@
 3. `FASE-3-LABORATORIO.md` - Paneles temáticos (próximamente actualizada)
 4. `FASE-4A-DASHBOARD-GRUPOS.md` - Gestión de grupos (próximamente actualizada)
 5. `FASE-4B-DASHBOARD-PROGRESO.md` - Visor de progreso (próximamente actualizada)
+6. [`FASE-4C-JUEGO-LAYOUT.md`](./FASE-4C-JUEGO-LAYOUT.md) - Pantalla de juego (layout + datos base)
 
 ---
 
@@ -28,6 +29,7 @@
 
 - **¿Cómo está organizado el código?** → [`FASE-1-REFACTORIZACION.md`](./FASE-1-REFACTORIZACION.md#nueva-estructura-de-carpetas)
 - **¿Qué rutas hay disponibles?** → [`FASE-1-REFACTORIZACION.md`](./FASE-1-REFACTORIZACION.md#enrutamiento-y-rutas-protegidas)
+      - Ruta del juego: `/juego/:panelId/:nivelId` (ver [`FASE-4C-JUEGO-LAYOUT.md`](./FASE-4C-JUEGO-LAYOUT.md))
 - **¿Cómo funciona el contexto de autenticación?** → [`FASE-1-REFACTORIZACION.md`](./FASE-1-REFACTORIZACION.md#sistema-de-autenticación-global)
 
 #### Sobre Nomenclatura
@@ -84,7 +86,7 @@
 
 #### Estado de Migración
 
-**✅ 100% Completado**
+Estado: ✅ 100% Completado
 
 Ver detalles en: [`README.md`](./README.md#migración-a-español)
 
@@ -112,7 +114,7 @@ Ver lista completa en: [`RESUMEN-REORGANIZACION.md`](./RESUMEN-REORGANIZACION.md
 
 ## 🗂️ Estructura de Carpetas del Proyecto
 
-```
+```text
 pixelvolt-app/
 ├── docs/
 │   └── fases/                           ← ESTÁS AQUÍ

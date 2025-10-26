@@ -136,28 +136,71 @@ Este directorio contiene la documentación completa del proceso de desarrollo de
 
 ---
 
+### ✅ [Fase 5: Implementación de la Interfaz Interactiva del Juego](./FASE-5-JUEGO-SIMULACION.md)
+
+**Fecha**: 25 de octubre de 2025  
+**Estado**: ✅ Completada
+
+**Resumen**:
+
+- Integración de Phaser 3 con importación dinámica y escala RESIZE.
+- Cuadrícula 32px, arrastre con límites y snap-to-grid.
+- Componentes como Containers con imagen y puntos de conexión.
+- Cables ortogonales con clics intermedios (clic-seguir-clic), z-index detrás de componentes.
+- Redibujo dinámico de cables al mover componentes.
+- Modelo de datos de conectividad con Map/Set y limpieza automática al eliminar componentes.
+
+**Archivos Clave**:
+
+- `src/caracteristicas/juego/componentes/LienzoJuego.js`
+- `src/caracteristicas/juego/PaginaJuego.js`
+- `src/caracteristicas/juego/datos/definicionHerramientas.js`
+
+---
+
 ## 🔜 Próximas Fases Planificadas
 
-### Fase 5: Sistema de Desafíos Personalizados
+### ✅ [Fase 4C: Pantalla de Juego — Layout y Datos Base](./FASE-4C-JUEGO-LAYOUT.md)
 
-**Pendiente**
+**Fecha**: 24 de octubre de 2025  
+**Estado**: ✅ Completada (Iteración 1)
 
-- Constructor de desafíos (ConstructorDesafios completo)
-- Asignación de desafíos a grupos
-- Sistema de evaluación
+**Resumen**:
 
-### Fase 6: Integración con Backend
+- Componente `PaginaJuego` con layout y estilos pixel.
+- Ruta protegida `/juego/:panelId/:nivelId` integrada en `App.js`.
+- Catálogo de herramientas y configuración por nivel.
+- Subtemas por panel actualizados acorde al diseño.
 
-**Pendiente**
+**Archivos Clave**:
+
+- `src/caracteristicas/juego/PaginaJuego.js`
+- `src/caracteristicas/juego/PaginaJuego.css`
+- `src/caracteristicas/juego/datos/definicionHerramientas.js`
+- `src/caracteristicas/juego/datos/configuracionNiveles.js`
+- `src/caracteristicas/subtema/PaginaSubtema.js`
+
+### Fase 6: Implementación de la Simulación Eléctrica Básica
+
+Estado: ⏳ Pendiente
+
+- Detección de circuitos cerrados/abiertos
+- Encendido de bombillas y estados de elementos
+- Validaciones por nivel (objetivos)
+- Cálculos básicos (continuidad, fuentes)
+
+### Fase 7: Integración con Backend
+
+Estado: Pendiente
 
 - Conexión con API REST
 - Autenticación con JWT
 - Persistencia real de datos
 - WebSockets para actualizaciones en tiempo real
 
-### Fase 7: Sistema de Gamificación
+### Fase 8: Sistema de Gamificación
 
-**Pendiente**
+Estado: Pendiente
 
 - Puntos y recompensas
 - Tienda de avatares
@@ -170,7 +213,7 @@ Este directorio contiene la documentación completa del proceso de desarrollo de
 
 ### Estructura Actual del Proyecto
 
-```
+```text
 pixelvolt-app/
 ├── docs/
 │   └── fases/                    # 📂 Documentación organizada
@@ -179,7 +222,9 @@ pixelvolt-app/
 │       ├── FASE-2-AUTENTICACION.md
 │       ├── FASE-3-LABORATORIO.md
 │       ├── FASE-4A-DASHBOARD-GRUPOS.md
-│       └── FASE-4B-DASHBOARD-PROGRESO.md
+│       ├── FASE-4B-DASHBOARD-PROGRESO.md
+│       ├── FASE-4C-JUEGO-LAYOUT.md
+│       └── FASE-5-JUEGO-SIMULACION.md
 │
 ├── src/
 │   ├── api/                      # Servicios (español)
@@ -319,10 +364,12 @@ Toda la base de código ha sido migrada a nomenclatura en español:
 - [Fase 3: Laboratorio](./FASE-3-LABORATORIO.md)
 - [Fase 4A: Dashboard Grupos](./FASE-4A-DASHBOARD-GRUPOS.md)
 - [Fase 4B: Dashboard Progreso](./FASE-4B-DASHBOARD-PROGRESO.md)
+- [Fase 4C: Pantalla de Juego — Layout y Datos Base](./FASE-4C-JUEGO-LAYOUT.md)
+- [Fase 5: Implementación de la Interfaz Interactiva del Juego](./FASE-5-JUEGO-SIMULACION.md)
 
 ---
 
-**Última Actualización**: 21 de octubre de 2025  
-**Versión del Proyecto**: 0.4.0  
+**Última Actualización**: 25 de octubre de 2025  
+**Versión del Proyecto**: 0.5.1  
 **Estado**: En Desarrollo Activo  
 **Idioma del Código**: Español 🇪🇸
