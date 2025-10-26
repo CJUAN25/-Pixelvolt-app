@@ -17,9 +17,9 @@ class InterruptorComponente extends Phaser.GameObjects.Container {
     // Guardar información de la herramienta
     this.setData('herramientaInfo', herramienta);
     
-    // Estado del interruptor (true = cerrado/ON, false = abierto/OFF)
-    this.estado = false;
-    this.setData('estadoInterruptor', this.estado);
+    // Estado del interruptor (false = abierto/OFF, true = cerrado/ON)
+    this.estaCerrado = false;
+    this.setData('estadoInterruptor', this.estaCerrado);
     
     // Crear imagen principal (coordenadas locales al contenedor)
     this.imagenPrincipal = scene.add.image(0, 0, herramienta.id).setOrigin(0.5);
@@ -85,6 +85,21 @@ class InterruptorComponente extends Phaser.GameObjects.Container {
     this.setInteractive({ useHandCursor: true });
     scene.input.setDraggable(this);
     
+    // ⚡ LISTENER PARA CLIC DERECHO - Cambiar estado del interruptor
+    this.on('pointerdown', (pointer, localX, localY, event) => {
+      // Verificar si fue clic derecho
+      if (pointer.rightButtonDown()) {
+        // Prevenir el menú contextual del navegador
+        if (pointer.event && pointer.event.preventDefault) {
+          pointer.event.preventDefault();
+        }
+        // Detener la propagación para que no lo capture la escena
+        event.stopPropagation();
+        // Cambiar el estado del interruptor
+        this.toggleEstado();
+      }
+    });
+    
     // Configurar listener de doble clic para eliminar
     this.configurarDobleClicEliminar(scene);
     
@@ -93,9 +108,6 @@ class InterruptorComponente extends Phaser.GameObjects.Container {
       this.setData('isDragging', false);
       this.setData('pressedWithLeft', false);
     });
-    
-    // Listener de clic simple para cambiar estado (cuando no es doble clic)
-    // TODO: Implementar toggleEstado() con un clic simple que no sea doble clic
   }
   
   /**
@@ -187,11 +199,13 @@ class InterruptorComponente extends Phaser.GameObjects.Container {
    * Cambia el estado del interruptor (ON/OFF)
    */
   toggleEstado() {
-    this.estado = !this.estado;
-    this.setData('estadoInterruptor', this.estado);
+    this.estaCerrado = !this.estaCerrado;
+    this.setData('estadoInterruptor', this.estaCerrado);
+    
+    console.log(`🔘 Interruptor ahora está ${this.estaCerrado ? 'CERRADO (ON)' : 'ABIERTO (OFF)'}`);
     
     // Cambiar apariencia visual
-    if (this.estado) {
+    if (this.estaCerrado) {
       // Interruptor cerrado (ON) - tinte verde
       this.imagenPrincipal.setTint(0x00ff00);
     } else {
@@ -199,7 +213,7 @@ class InterruptorComponente extends Phaser.GameObjects.Container {
       this.imagenPrincipal.clearTint();
     }
     
-    console.log(`🔘 Interruptor ${this.estado ? 'CERRADO (ON)' : 'ABIERTO (OFF)'}`);
+    // TODO: Aquí podrías cambiar textura/frame si tienes sprites con estados
   }
   
   /**
@@ -207,7 +221,7 @@ class InterruptorComponente extends Phaser.GameObjects.Container {
    * @returns {boolean} true si está cerrado (ON), false si está abierto (OFF)
    */
   obtenerEstado() {
-    return this.estado;
+    return this.estaCerrado;
   }
 }
 

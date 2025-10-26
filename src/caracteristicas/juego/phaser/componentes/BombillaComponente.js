@@ -89,6 +89,9 @@ class BombillaComponente extends Phaser.GameObjects.Container {
       this.setData('isDragging', false);
       this.setData('pressedWithLeft', false);
     });
+    
+    // Iniciar apagada
+    this.apagar();
   }
   
   /**
