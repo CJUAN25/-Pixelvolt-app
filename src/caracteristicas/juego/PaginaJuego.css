@@ -212,20 +212,23 @@
 
 .dialogo-tutor {
 	border: var(--pv-borde) solid var(--pv-cyan);
-	padding: 8px;
-	font-size: 9px;
-	line-height: 1.4;
+	padding: 10px;
+	/* Aumentar legibilidad del texto del diálogo */
+	font-size: 12px;
+	line-height: 1.5;
 	background: rgba(0, 229, 255, 0.06);
 }
 
 .dialogo-tutor strong {
 	display: block;
 	margin-bottom: 10px;
+	font-size: 12px;
 	color: var(--pv-cyan);
 }
 
 .dialogo-tutor p {
 	margin: 0;
+	word-break: break-word;
 }
 
 .controles-nivel {
@@ -253,6 +256,13 @@
 	transition: transform 80ms ease, box-shadow 80ms ease;
 }
 
+/* Botón "Siguiente" más compacto en el panel de tutor */
+.boton-pixel.boton-siguiente {
+  font-size: 9px;
+  padding: 6px 10px;
+  box-shadow: 0 0 0 var(--pv-borde) var(--pv-cyan) inset, 2px 2px 0 0 rgba(0, 0, 0, 0.5);
+}
+
 .titulo-controles {
 	margin: 0;
 	text-align: center;
@@ -272,6 +282,12 @@
 .boton-pixel:active {
 	transform: translate(2px, 2px);
 	box-shadow: 0 0 0 var(--pv-borde) var(--pv-cyan) inset, 2px 2px 0 0 rgba(0, 0, 0, 0.5);
+}
+
+.boton-pixel:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	filter: grayscale(0.2);
 }
 
 .boton-pixel.validar { background: var(--pv-verde); }

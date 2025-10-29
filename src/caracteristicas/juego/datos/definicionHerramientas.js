@@ -20,9 +20,14 @@ import iconoTransformador from '../../../assets/iconos/herramientas/transformado
 
 export const HERRAMIENTAS_DISPONIBLES = [
   { id: 'cable', nombre: 'Cable Conector', icono: iconoCable, puntosConexion: [] },
-  { id: 'bateria', nombre: 'Batería (CC)', icono: iconoBateria, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
-  { id: 'resistencia-fija', nombre: 'Resistencia Fija', icono: iconoResistencia, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
-  { id: 'bombilla', nombre: 'Bombilla', icono: iconoBombilla, puntosConexion: [ { x: -5, y: 14 }, { x: 5, y: 14 } ] },
+  { id: 'bateria', nombre: 'Batería (CC)', icono: iconoBateria, valorVoltaje: 5, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
+  // Resistencia fija (se mantiene) y nuevas variantes con valores específicos
+  { id: 'resistencia-fija', nombre: 'Resistencia Fija (50 Ω)', icono: iconoResistencia, valorResistencia: 50, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
+  { id: 'resistencia-68', nombre: 'Resistencia (68 Ω)', icono: iconoResistencia, valorResistencia: 68, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
+  { id: 'resistencia-10', nombre: 'Resistencia (10 Ω)', icono: iconoResistencia, valorResistencia: 10, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
+  { id: 'resistencia-100', nombre: 'Resistencia (100 Ω)', icono: iconoResistencia, valorResistencia: 100, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
+  { id: 'resistencia-1k', nombre: 'Resistencia (1 kΩ)', icono: iconoResistencia, valorResistencia: 1000, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
+  { id: 'bombilla', nombre: 'Bombilla', icono: iconoBombilla, corrienteOptima: 0.05, corrienteMaxima: 0.1, puntosConexion: [ { x: -5, y: 14 }, { x: 5, y: 14 } ] },
   { id: 'interruptor', nombre: 'Interruptor', icono: iconoInterruptor, puntosConexion: [ { x: -16, y: 0 }, { x: 16, y: 0 } ] },
   { id: 'iman-barra', nombre: 'Imán de Barra', icono: iconoImanBarra, puntosConexion: [] },
   { id: 'brujula', nombre: 'Brújula', icono: iconoBrujula, puntosConexion: [] },

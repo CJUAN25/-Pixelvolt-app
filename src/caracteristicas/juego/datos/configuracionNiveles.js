@@ -1,89 +1,70 @@
 // src/caracteristicas/juego/datos/configuracionNiveles.js
 
+// Importaciones por panel (mantiene API síncrona para los consumidores actuales)
+// Nota: Elegimos importaciones estáticas para no romper llamadas existentes que esperan sincronía.
+// Si en el futuro se migra a carga realmente dinámica (code-splitting), habrá que adaptar los consumidores a async.
+import { nivelesPanel1 } from './configuracionPanel1';
+import { nivelesPanel2 } from './configuracionPanel2';
+import { nivelesPanel3 } from './configuracionPanel3';
+import { nivelesPanel4 } from './configuracionPanel4';
+import { nivelesPanel5 } from './configuracionPanel5';
+import { nivelesPanel6 } from './configuracionPanel6';
+
+// Helper: normaliza posibles formatos 'panel-2-electricidad' -> '2', 'nivel-1-carga' -> '1'
+const normalizarPanel = (panelId) => (
+  typeof panelId === 'string' && panelId.startsWith('panel-')
+    ? panelId.split('-')[1]
+    : panelId
+);
+
+const normalizarNivel = (nivelId) => (
+  typeof nivelId === 'string' && nivelId.startsWith('nivel-')
+    ? nivelId.split('-')[1]
+    : nivelId
+);
+
+// Devuelve el arreglo de niveles según el panel solicitado
+const obtenerNivelesDePanel = (panelNormalizado) => {
+  switch (String(panelNormalizado)) {
+    case '1': return nivelesPanel1;
+    case '2': return nivelesPanel2;
+    case '3': return nivelesPanel3;
+    case '4': return nivelesPanel4;
+    case '5': return nivelesPanel5;
+    case '6': return nivelesPanel6;
+    default: return null;
+  }
+};
+
 /**
- * Configuración de herramientas disponibles por nivel.
- * Cada clave identifica un nivel único usando el formato: panel-<ID_PANEL>-nivel-<ID_NIVEL>
- * Cada valor es un objeto con herramientas y objetivos de validación
+ * Función helper para obtener la configuración completa de un nivel específico.
+ * @param {string|number} panelId - ID del panel (ej: '2' o 'panel-2-electricidad')
+ * @param {string|number} nivelId - ID del nivel (ej: '1' o 'nivel-1-carga')
+ * @returns {Object} Configuración del nivel con herramientas, objetivos, etc.
  */
+export const obtenerConfiguracionNivel = (panelId, nivelId) => {
+  const panelNormalizado = normalizarPanel(panelId);
+  const nivelNormalizado = normalizarNivel(nivelId);
 
-export const CONFIGURACION_NIVELES = {
-  // Panel 1: Chatarrería de Robots (Tutorial)
-  'panel-1-nivel-1': {
-      herramientas: ['bateria'],
-    objetivoTexto: 'Conecta la batería con un cable',
-    puntosAlCompletar: 100,
-    objetivoValidacion: {
-      // Sin requisitos específicos por ahora (tutorial)
-    }
-  },
+  const niveles = obtenerNivelesDePanel(panelNormalizado);
+  if (!niveles || !Array.isArray(niveles)) {
+    return {
+      herramientas: [],
+      objetivoTexto: 'Nivel no encontrado',
+      objetivoValidacion: {},
+      puntosAlCompletar: 0
+    };
+  }
 
-  // Panel 2: Electricidad Básica
-  'panel-2-nivel-1': {
-      herramientas: ['bateria', 'bombilla'],
-    objetivoTexto: 'Enciende 1 bombilla conectándola correctamente a la batería',
-    puntosAlCompletar: 100,
-    objetivoValidacion: {
-      bombillasEncendidasMin: 1
-    }
-  },
-  'panel-2-nivel-2': {
-      herramientas: ['bateria', 'resistencia-fija', 'bombilla', 'interruptor'],
-    objetivoTexto: 'Enciende al menos 1 bombilla conectándola a la batería',
-    puntosAlCompletar: 150,
-    objetivoValidacion: {
-      bombillasEncendidasMin: 1
-    }
-  },
-  'panel-2-nivel-3': {
-      herramientas: ['bateria', 'resistencia-fija', 'bombilla', 'interruptor'],
-    objetivoTexto: 'Enciende 2 bombillas en serie usando el interruptor cerrado',
-    puntosAlCompletar: 200,
-    objetivoValidacion: {
-      bombillasEncendidasMin: 2,
-      interruptoresCerradosMin: 1
-    }
-  },
-  'panel-2-nivel-4': {
-      herramientas: ['bateria', 'resistencia-fija', 'bombilla', 'interruptor'],
-    objetivoTexto: 'Crea un circuito serie con resistencia, interruptor y bombilla',
-    puntosAlCompletar: 200,
-    objetivoValidacion: {
-      bombillasEncendidasMin: 1,
-      interruptoresCerradosMin: 1
-    }
-  },
+  const idBuscado = Number(nivelNormalizado);
+  const nivel = niveles.find((n) => Number(n.id) === idBuscado);
 
-  // Panel 3: Magnetismo (placeholders para futura implementación)
-  'panel-3-nivel-1': {
-      herramientas: ['iman-barra', 'brujula'],
-    objetivoTexto: 'Experimenta con imanes y brújula',
-    puntosAlCompletar: 100,
-    objetivoValidacion: {}
-  },
-
-  // Panel 4: Ley de Faraday (placeholders)
-  'panel-4-nivel-1': {
-      herramientas: ['iman-barra', 'bobina'],
-    objetivoTexto: 'Genera corriente con inducción electromagnética',
-    puntosAlCompletar: 150,
-    objetivoValidacion: {}
-  },
-
-  // Panel 5: Circuitos Complejos (placeholders)
-  'panel-5-nivel-1': {
-      herramientas: ['bateria', 'resistencia-fija', 'capacitor', 'bobina', 'interruptor'],
-    objetivoTexto: 'Construye un circuito complejo funcional',
-    puntosAlCompletar: 250,
-    objetivoValidacion: {}
-  },
-
-  // Panel 6: Corriente Alterna (placeholders)
-  'panel-6-nivel-1': {
-      herramientas: ['fuente-ca', 'transformador', 'motor', 'bombilla'],
-    objetivoTexto: 'Experimenta con corriente alterna',
-    puntosAlCompletar: 150,
-    objetivoValidacion: {}
-  },
+  return nivel || {
+    herramientas: [],
+    objetivoTexto: 'Nivel no encontrado',
+    objetivoValidacion: {},
+    puntosAlCompletar: 0
+  };
 };
 
 /**
@@ -93,54 +74,6 @@ export const CONFIGURACION_NIVELES = {
  * @returns {string[]} Array de IDs de herramientas, o array vacío si no se encuentra el nivel
  */
 export const obtenerHerramientasParaNivel = (panelId, nivelId) => {
-  // Normalizar los IDs para manejar diferentes formatos
-  const panelNormalizado = typeof panelId === 'string' && panelId.startsWith('panel-')
-    ? panelId.split('-')[1]
-    : panelId;
-  
-  const nivelNormalizado = typeof nivelId === 'string' && nivelId.startsWith('nivel-')
-    ? nivelId.split('-')[1]
-    : nivelId;
-
-  const claveNivel = `panel-${panelNormalizado}-nivel-${nivelNormalizado}`;
-  const config = CONFIGURACION_NIVELES[claveNivel];
-  
-  // Si es un objeto, devolver el array de herramientas; si es array (legacy), devolverlo
-  return config?.herramientas || config || [];
-};
-
-/**
- * Función helper para obtener la configuración completa de un nivel específico.
- * @param {string|number} panelId - ID del panel
- * @param {string|number} nivelId - ID del nivel
- * @returns {Object} Configuración del nivel con herramientas, objetivos, etc.
- */
-export const obtenerConfiguracionNivel = (panelId, nivelId) => {
-  const panelNormalizado = typeof panelId === 'string' && panelId.startsWith('panel-')
-    ? panelId.split('-')[1]
-    : panelId;
-  
-  const nivelNormalizado = typeof nivelId === 'string' && nivelId.startsWith('nivel-')
-    ? nivelId.split('-')[1]
-    : nivelId;
-
-  const claveNivel = `panel-${panelNormalizado}-nivel-${nivelNormalizado}`;
-  const config = CONFIGURACION_NIVELES[claveNivel];
-  
-  // Si es un objeto, devolverlo; si es array (legacy), convertirlo
-  if (Array.isArray(config)) {
-    return {
-      herramientas: config,
-      objetivoTexto: 'Nivel sin descripción',
-      objetivoValidacion: {},
-      puntosAlCompletar: 0
-    };
-  }
-  
-  return config || {
-    herramientas: [],
-    objetivoTexto: 'Nivel no encontrado',
-    objetivoValidacion: {},
-    puntosAlCompletar: 0
-  };
+  const config = obtenerConfiguracionNivel(panelId, nivelId);
+  return Array.isArray(config?.herramientas) ? config.herramientas : [];
 };

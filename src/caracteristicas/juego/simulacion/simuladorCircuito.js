@@ -8,33 +8,119 @@ import InterruptorComponente from '../phaser/componentes/InterruptorComponente';
 import ResistenciaComponente from '../phaser/componentes/ResistenciaComponente';
 
 /**
- * Analiza el estado del circuito y determina qué bombillas deben estar encendidas.
- * - Busca caminos desde el polo positivo de cada batería hasta una bombilla,
- *   y luego verifica el regreso desde la otra terminal de la bombilla al polo negativo
- *   de esa misma batería (circuito cerrado simple).
+ * Analiza el estado del circuito y determina el estado de cada bombilla usando Ley de Ohm.
+ * - Devuelve un Map<BombillaComponente, string> con estados: 'apagada', 'encendida_correcta',
+ *   'encendida_muy_brillante' o 'quemada'.
  * - Respeta el estado de los interruptores (solo permiten paso si están cerrados).
+ * - Usa valores de configuracionSimulacion cuando estén presentes; si no, toma valores de las
+ *   herramientas (valorVoltaje en batería, valorResistencia en resistencias, corrienteOptima y
+ *   corrienteMaxima en bombilla).
  *
  * @param {Array<Phaser.GameObjects.Container>} componentesEnEscena - Instancias de todos los componentes en la escena.
  * @param {Map<Phaser.GameObjects.Container, Set<Object>>} conexionesPorComponente - Mapa de conexiones (cableInfo) por componente.
- * @returns {Set<BombillaComponente>} Conjunto de bombillas que están en un circuito cerrado válido.
+ * @param {Object} configuracionSimulacion - Opcional. { voltajeBateria, corrienteOptimaBombilla, corrienteMaximaBombilla }
+ * @returns {Map<BombillaComponente, string>} Estados por bombilla.
  */
-export function analizarEstadoCircuito(componentesEnEscena, conexionesPorComponente) {
-  const bombillasEncendidas = new Set();
-  if (!Array.isArray(componentesEnEscena) || !conexionesPorComponente) return bombillasEncendidas;
+export function analizarEstadoCircuito(componentesEnEscena, conexionesPorComponente, configuracionSimulacion = null) {
+  const estados = new Map();
+  if (!Array.isArray(componentesEnEscena) || !conexionesPorComponente) return estados;
 
-  // 1) Encontrar baterías en escena
+  const bombillas = componentesEnEscena.filter((c) => c instanceof BombillaComponente);
+  // Inicializar todas como apagadas por defecto
+  bombillas.forEach((b) => estados.set(b, 'apagada'));
+
   const baterias = componentesEnEscena.filter((c) => c instanceof BateriaComponente);
-  if (baterias.length === 0) return bombillasEncendidas;
+  if (baterias.length === 0) return estados;
 
-  // 2) Para cada batería, verificar bombillas que esa batería logra encender
+  // Mapa de severidad para combinar resultados de múltiples rutas:
+  // apagada < tenue < correcta < muy_brillante < quemada
+  const severidad = {
+    'apagada': 0,
+    'encendida_tenue': 1,
+    'encendida_correcta': 2,
+    'encendida_muy_brillante': 3,
+    'quemada': 4
+  };
+
+  // Para cada batería y bombilla, evaluar si existe un lazo cerrado y calcular I
   for (const bateria of baterias) {
-    const bombillasPorEstaBateria = verificarCaminoParaBateria(bateria, componentesEnEscena, conexionesPorComponente);
-    for (const b of bombillasPorEstaBateria) {
-      bombillasEncendidas.add(b);
+    for (const bombilla of bombillas) {
+      const rutaContenedores = encontrarCaminoCerradoQueInvolucraBombilla(bateria, bombilla, conexionesPorComponente);
+      if (!rutaContenedores) continue;
+
+      // Sumar voltajes y resistencias de la ruta
+      let Vtotal = 0;
+      let Rtotal = 0;
+      for (const comp of rutaContenedores) {
+        const info = comp.getData ? comp.getData('herramientaInfo') : null;
+        if (comp instanceof BateriaComponente) {
+          const v = (configuracionSimulacion && typeof configuracionSimulacion.voltajeBateria === 'number')
+            ? configuracionSimulacion.voltajeBateria
+            : (info?.valorVoltaje || 0);
+          Vtotal += (typeof v === 'number' ? v : 0);
+        } else if (comp instanceof ResistenciaComponente) {
+          const r = info?.valorResistencia;
+          if (typeof r === 'number') Rtotal += r;
+        } else if (comp instanceof BombillaComponente) {
+          // Sumar la resistencia interna de la bombilla si está especificada
+          const rBombilla = (configuracionSimulacion && typeof configuracionSimulacion.resistenciaBombilla === 'number')
+            ? configuracionSimulacion.resistenciaBombilla
+            : 0;
+          if (rBombilla > 0) Rtotal += rBombilla;
+        }
+      }
+
+      // Evitar división por cero: si no hay resistencias explícitas, asumir pequeña resistencia
+      if (Rtotal <= 0) Rtotal = 0.1; // ohmios mínimos para evitar infinito
+
+      const I = Vtotal / Rtotal; // Amperios
+
+      // Log de depuración para ver valores calculados
+      console.log(`💡 Bombilla: V=${Vtotal.toFixed(2)}V, R=${Rtotal.toFixed(2)}Ω, I=${I.toFixed(4)}A`);
+
+      // Obtener parámetros de la bombilla
+      const infoBomb = bombilla.getData ? bombilla.getData('herramientaInfo') : null;
+      const Iopt = (configuracionSimulacion && typeof configuracionSimulacion.corrienteOptimaBombilla === 'number')
+        ? configuracionSimulacion.corrienteOptimaBombilla
+        : (infoBomb?.corrienteOptima ?? 0.05);
+      const Imax = (configuracionSimulacion && typeof configuracionSimulacion.corrienteMaximaBombilla === 'number')
+        ? configuracionSimulacion.corrienteMaximaBombilla
+        : (infoBomb?.corrienteMaxima ?? 0.1);
+
+      // Umbrales ajustados para mejor visualización de todos los estados
+      const umbralMinimo = Iopt * 0.05; // 5% de corriente óptima - mínimo para empezar a brillar
+      const umbralTenue = Iopt * 0.5;   // 50% de corriente óptima - brillo tenue
+      const umbralNormal = Iopt * 0.75; // 75% de corriente óptima - brillo normal
+      const umbralBrillante = Iopt * 1.3; // 130% de corriente óptima - muy brillante
+
+      let estado = 'apagada';
+      if (I > Imax) {
+        estado = 'quemada';
+      } else if (I >= umbralBrillante) {
+        estado = 'encendida_muy_brillante';
+      } else if (I >= umbralNormal) {
+        estado = 'encendida_correcta';
+      } else if (I >= umbralTenue) {
+        estado = 'encendida_tenue';
+      } else if (I >= umbralMinimo) {
+        estado = 'encendida_tenue'; // Muy poca corriente, pero algo de brillo
+      } else {
+        estado = 'apagada';
+      }
+
+      // Log del estado determinado
+      console.log(`   Estado: ${estado} (Iopt=${Iopt.toFixed(4)}A, Imax=${Imax.toFixed(4)}A)`);
+
+      const estadoPrev = estados.get(bombilla) || 'apagada';
+      if (severidad[estado] > severidad[estadoPrev]) {
+        estados.set(bombilla, estado);
+      } else if (estadoPrev === undefined) {
+        estados.set(bombilla, estado);
+      }
     }
   }
 
-  return bombillasEncendidas;
+  return estados;
 }
 
 /**
@@ -45,30 +131,24 @@ export function analizarEstadoCircuito(componentesEnEscena, conexionesPorCompone
  * @returns {Set<BombillaComponente>}
  */
 function verificarCaminoParaBateria(bateria, componentes, conexiones) {
+  // Ya no se usa externamente en el nuevo flujo, pero se conserva si hiciera falta
   const encendidas = new Set();
   const terminales = obtenerTerminalesBateria(bateria);
   if (!terminales || !terminales.positivo || !terminales.negativo) return encendidas;
-
-  // 1) Buscar bombillas alcanzables desde el polo positivo (sin atravesar la bombilla)
-  const visitadosIda = new Set(); // Set<cableInfo>
+  const visitadosIda = new Set();
   const halladas = buscarBombillasEnCamino(terminales.positivo, conexiones, visitadosIda);
-
-  // 2) Para cada bombilla hallada, verificar el regreso desde su otra terminal hasta el polo negativo original
   for (const { bombilla, puntoEntradaBombilla } of halladas) {
     const puntoSalidaBombilla = obtenerOtrosPuntosEnComponente(bombilla, puntoEntradaBombilla)[0];
     if (!puntoSalidaBombilla) continue;
-
-    const visitadosVuelta = new Set(); // Set<cableInfo>
+    const visitadosVuelta = new Set();
     const hayRegreso = buscarRegresoBateria(
       { contenedor: bombilla, punto: puntoSalidaBombilla },
       terminales.negativo,
       conexiones,
       visitadosVuelta
     );
-
     if (hayRegreso) encendidas.add(bombilla);
   }
-
   return encendidas;
 }
 
@@ -199,6 +279,77 @@ function buscarRegresoBateria(nodoInicial, nodoObjetivo, conexiones, visitadosCa
   };
 
   return dfs(nodoInicial);
+}
+
+/**
+ * Encuentra un camino cerrado desde el terminal positivo de una batería hasta su terminal negativo
+ * que obligatoriamente atraviese la bombilla indicada. Devuelve la lista de contenedores (componentes)
+ * únicos presentes en la ruta si existe, o null si no existe.
+ * @param {BateriaComponente} bateria
+ * @param {BombillaComponente} bombillaObjetivo
+ * @param {Map<Phaser.GameObjects.Container, Set<Object>>} conexiones
+ * @returns {Array<Phaser.GameObjects.Container>|null}
+ */
+function encontrarCaminoCerradoQueInvolucraBombilla(bateria, bombillaObjetivo, conexiones) {
+  const terminales = obtenerTerminalesBateria(bateria);
+  if (!terminales) return null;
+
+  const objetivoKey = crearClaveNodo(terminales.negativo);
+  const visitadosCables = new Set();
+
+  const dfs = (nodo, vioBombilla, listaContenedores) => {
+    if (crearClaveNodo(nodo) === objetivoKey && vioBombilla) {
+      // Incluir la batería también en el conjunto
+      const unicos = Array.from(new Set([bateria, ...listaContenedores]));
+      return unicos;
+    }
+
+    const cables = obtenerCablesConectadosAlPunto(conexiones, nodo.contenedor, nodo.punto);
+    for (const cableInfo of cables) {
+      if (visitadosCables.has(cableInfo)) continue;
+      visitadosCables.add(cableInfo);
+
+      const otroExtremo = obtenerOtroExtremo(cableInfo, nodo);
+      if (!otroExtremo) {
+        visitadosCables.delete(cableInfo);
+        continue;
+      }
+      const comp = otroExtremo.contenedor;
+      const pto = otroExtremo.punto;
+
+      if (crearClaveNodo(otroExtremo) === objetivoKey && vioBombilla) {
+        const unicos = Array.from(new Set([bateria, ...listaContenedores]));
+        return unicos;
+      }
+
+      if (comp instanceof InterruptorComponente) {
+        if (!comp.obtenerEstado || !comp.obtenerEstado()) {
+          visitadosCables.delete(cableInfo);
+          continue;
+        }
+        const otrosPuntos = obtenerOtrosPuntosEnComponente(comp, pto);
+        for (const op of otrosPuntos) {
+          const res = dfs({ contenedor: comp, punto: op }, vioBombilla, [...listaContenedores, comp]);
+          if (res) return res;
+        }
+      } else if (comp instanceof BateriaComponente) {
+        // No atravesar batería salvo que sea el objetivo manejado arriba
+      } else {
+        // Componentes pasivos y bombillas: se atraviesan
+        const esBombilla = comp instanceof BombillaComponente && comp === bombillaObjetivo;
+        const otrosPuntos = obtenerOtrosPuntosEnComponente(comp, pto);
+        for (const op of otrosPuntos) {
+          const res = dfs({ contenedor: comp, punto: op }, vioBombilla || esBombilla, [...listaContenedores, comp]);
+          if (res) return res;
+        }
+      }
+
+      visitadosCables.delete(cableInfo);
+    }
+    return null;
+  };
+
+  return dfs(terminales.positivo, false, []);
 }
 
 // =========================

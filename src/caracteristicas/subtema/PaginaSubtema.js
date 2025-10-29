@@ -52,7 +52,8 @@ function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuar
         { id: 1, titulo: 'Naturaleza de la Carga', estado: 'desbloqueado', descripcion: 'Explora cómo interactúan las cargas positivas y negativas.', objetivo: 'Demostrar atracción y repulsión.' },
         { id: 2, titulo: 'Componentes Básicos', estado: 'bloqueado', descripcion: 'Identifica y usa resistencias y bombillas en un circuito simple.', objetivo: 'Conectar correctamente componentes básicos.' },
         { id: 3, titulo: 'Ley de Ohm', estado: 'bloqueado', descripcion: 'Descubre la relación entre Voltaje, Corriente y Resistencia.', objetivo: 'Calcular un valor usando la Ley de Ohm.' },
-        { id: 4, titulo: 'Circuitos Serie y Paralelo', estado: 'bloqueado', descripcion: 'Compara cómo fluye la corriente en diferentes configuraciones de circuito.', objetivo: 'Construir y analizar ambos tipos de circuito.' }
+        { id: 4, titulo: 'Circuito en Serie', estado: 'bloqueado', descripcion: 'Conecta bombillas una después de la otra y observa cómo comparten energía. Lograr luz tenue', objetivo: 'Construir y analizar un circuito en serie.' },
+        { id: 5, titulo: 'Circuito en Paralelo', estado: 'bloqueado', descripcion: 'Conecta dos bombillas en caminos separados (paralelo) y observa cómo cada una recibe la energía completa.', objetivo: 'Construir y analizar un circuito en paralelo.' }
       ]
     },
 
@@ -141,22 +142,19 @@ function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuar
     }
   };
 
-  const manejarIniciarNivel = () => {
-    if (nivelSeleccionado) {
-      alIniciarNivel?.(panelSeleccionado, nivelSeleccionado);
-    }
-  };
+  // Nota: función no usada eliminada para evitar warnings de ESLint.
 
   // Reemplaza el alert "¡Próximamente!" por esta función
   const manejarEmpezarNivel = () => {
-    // Ajusta estos accesos según tu estado/props reales:
-    const panelId = nivelSeleccionado?.panelId || nivelSeleccionado?.panel || 'panel-2-electricidad';
-    const nivelId = nivelSeleccionado?.nivelId || nivelSeleccionado?.id || 'nivel-1-carga';
+    // Derivar los IDs desde el panel seleccionado y el nivel elegido
+    const panelId = String(panelSeleccionado?.id || nivelSeleccionado?.panelId || 2);
+    const nivelId = String(nivelSeleccionado?.id || nivelSeleccionado?.nivelId || 1);
 
     if (!panelId || !nivelId) {
-      console.error('Faltan ids de panel o nivel', { panelId, nivelId, nivelSeleccionado });
+      console.error('Faltan ids de panel o nivel', { panelId, nivelId, nivelSeleccionado, panelSeleccionado });
       return;
     }
+    // Navegar usando IDs simples para compatibilidad con la carga por panel
     navegar(`/juego/${panelId}/${nivelId}`);
   };
 

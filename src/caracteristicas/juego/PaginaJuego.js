@@ -1,29 +1,62 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './PaginaJuego.css';
 import { HERRAMIENTAS_DISPONIBLES } from './datos/definicionHerramientas';
 import { obtenerHerramientasParaNivel, obtenerConfiguracionNivel } from './datos/configuracionNiveles';
 import LienzoJuego from './componentes/LienzoJuego';
 import { useAuth } from '../../contexto/ContextoAutenticacion';
+import ModalFeedback from './componentes/ModalFeedback';
 
 function PaginaJuego() {
 	// Extraer identificadores desde la ruta
 	const { panelId, nivelId } = useParams();
 	const navegar = useNavigate();
-  const { usuario } = useAuth();
+	const { usuario } = useAuth();
   const userId = usuario?.id || 'anonimo';
 
 	// Referencia al lienzo de Phaser para controlar la simulación
 	const lienzoRef = React.useRef();
 
-	// Obtener configuración completa del nivel
-	const configuracionNivel = React.useMemo(() => 
-		obtenerConfiguracionNivel(panelId, nivelId),
-		[panelId, nivelId]
-	);
+		// Obtener configuración completa del nivel
+		const configuracionNivel = useMemo(() => obtenerConfiguracionNivel(panelId, nivelId), [panelId, nivelId]);
+
+		// Estado del tutorial (solo aplica para niveles con dialogoTutorSecuencial)
+			const [pasoTutorialActual, setPasoTutorialActual] = useState(0);
+			const [indicePistaPasoActual, setIndicePistaPasoActual] = useState(0);
+			const [objetivoCumplido, setObjetivoCumplido] = useState(false);
+
+	// Estado para el modal de feedback
+	const [modal, setModal] = useState({
+		visible: false,
+		tipo: 'info',
+		mensaje: ''
+	});
+
+	// Helper para mostrar el modal
+	const mostrarModal = (tipo, mensaje, callback) => {
+		setModal({
+			visible: true,
+			tipo,
+			mensaje,
+			callback // Callback opcional que se ejecuta al cerrar
+		});
+	};
+
+	// Handler para cerrar el modal
+	const cerrarModal = () => {
+		const callbackTemp = modal.callback;
+		setModal({ visible: false, tipo: 'info', mensaje: '', callback: null });
+		// Ejecutar callback si existe (para navegación u otras acciones post-modal)
+		if (callbackTemp) callbackTemp();
+	};
+
+		// Resetear índice de pista al cambiar de paso
+		useEffect(() => {
+			setIndicePistaPasoActual(0);
+		}, [pasoTutorialActual]);
 
 	// Calcular herramientas del nivel actual
-	const herramientasDelNivel = React.useMemo(() => {
+		const herramientasDelNivel = useMemo(() => {
 		const idsHerramientasPermitidas = obtenerHerramientasParaNivel(panelId, nivelId);
 		return HERRAMIENTAS_DISPONIBLES.filter((herramienta) =>
 			idsHerramientasPermitidas.includes(herramienta.id)
@@ -90,19 +123,101 @@ function PaginaJuego() {
 	};
 
 	const manejarValidar = () => {
+		// En el tutorial del Panel 1 Nivel 1, la validación solo se permite en el paso 6
+		if (String(panelId) === '1' && String(nivelId) === '1') {
+			if (pasoTutorialActual !== 6) {
+				return; // Ignorar validación fuera del paso 6
+			}
+		}
+
 		const resultado = lienzoRef.current?.ejecutarValidacion();
 		if (resultado) {
-			guardarProgresoLocal(panelId, nivelId);
-			alert(`¡Nivel Completado! Has ganado ${configuracionNivel?.puntosAlCompletar || 0} puntos.`);
-			navegar('/subtemas');
+			if (String(panelId) === '1' && String(nivelId) === '1' && configuracionNivel?.feedbackExito) {
+				mostrarModal('exito', configuracionNivel.feedbackExito, () => {
+					setObjetivoCumplido(true);
+					setPasoTutorialActual(7); // continuar tutorial tras validar en paso 6
+				});
+			} else {
+				guardarProgresoLocal(panelId, nivelId);
+				mostrarModal('exito', `¡Nivel Completado! Has ganado ${configuracionNivel?.puntosAlCompletar || 0} puntos.`, () => {
+					navegar('/subtemas');
+				});
+			}
 		} else {
-			alert('El circuito aún no cumple con los objetivos del nivel. Intenta nuevamente.');
+			// Lógica de fallo - Mostrar feedback contextual
+			const ultimoEstadoSimulacion = lienzoRef.current?.obtenerUltimoEstadoSimulacion();
+			let feedbackFalloMostrado = configuracionNivel?.feedbackFallo_CircuitoIncorrecto || configuracionNivel?.feedbackFallo || "Revisa el circuito. ¿Está bien conectado y el interruptor cerrado?";
+
+			if (ultimoEstadoSimulacion && ultimoEstadoSimulacion.size > 0) {
+				// Obtener estados de todas las bombillas
+				const estadosArray = Array.from(ultimoEstadoSimulacion.values());
+				const algunaQuemada = estadosArray.some(e => e === 'quemada');
+				const algunaEncendidaMuyBrillante = estadosArray.some(e => e === 'encendida_muy_brillante');
+				const algunaEncendidaCorrectamente = estadosArray.some(e => e === 'encendida_correcta');
+				const algunaTenue = estadosArray.some(e => e === 'encendida_tenue');
+				const todasApagadas = estadosArray.every(e => e === 'apagada');
+				const cantidadBombillas = estadosArray.length;
+
+				// LÓGICA ESPECÍFICA PARA NIVEL 4 (Serie): Detectar 1 bombilla muy brillante
+				const esNivel4 = String(panelId) === '2' && String(nivelId) === '4';
+				if (esNivel4 && cantidadBombillas === 1 && algunaEncendidaMuyBrillante) {
+					// Caso especial: una sola bombilla muy brillante en el nivel de serie
+					feedbackFalloMostrado = configuracionNivel?.feedbackFallo_UnaBombilla
+						|| "Solo tienes una bombilla y está brillando demasiado. Necesitas **DOS bombillas en serie** para repartir la corriente.";
+				} else if (algunaQuemada) {
+					// Preferir mensaje específico de quemada si existe
+					feedbackFalloMostrado = configuracionNivel?.feedbackFallo_Quemada
+						|| configuracionNivel?.feedbackFallo_MuchaCorriente
+						|| "¡POP! Demasiada corriente. La bombilla se ha quemado.";
+				} else if (algunaEncendidaMuyBrillante) {
+					// Corriente alta pero no llega a quemarse: preferir mensaje de muy brillante
+					feedbackFalloMostrado = configuracionNivel?.feedbackFallo_MuyBrillante
+						|| configuracionNivel?.feedbackFallo_MuchaCorriente
+						|| "La bombilla está demasiado brillante: hay mucha corriente. Ajusta la resistencia (prueba 100 Ω).";
+				} else if ((todasApagadas || algunaTenue) && !algunaEncendidaCorrectamente) {
+					feedbackFalloMostrado = configuracionNivel?.feedbackFallo_MuyPocaCorriente || "La bombilla no enciende o hay un error en el circuito.";
+				}
+			}
+
+			mostrarModal('error', feedbackFalloMostrado);
 		}
+	};		const manejarPista = () => {
+		// Soportar dos formatos: pistasPorPaso (objeto por paso) o pistas (array simple)
+		const pistasPorPaso = configuracionNivel?.pistasPorPaso;
+		const pistasSimples = configuracionNivel?.pistas;
+
+		// Si hay pistasPorPaso (formato tutorial con pasos)
+		if (pistasPorPaso && Object.keys(pistasPorPaso).length > 0) {
+			const clavePaso = String(pasoTutorialActual);
+			const pistas = pistasPorPaso[clavePaso];
+			if (!pistas || pistas.length === 0) {
+				mostrarModal('pista', 'No hay pistas para este paso.');
+				return;
+			}
+			const pista = pistas[indicePistaPasoActual % pistas.length];
+			mostrarModal('pista', pista);
+			setIndicePistaPasoActual((i) => i + 1);
+			return;
+		}
+
+		// Si hay pistas simples (array de strings)
+		if (pistasSimples && Array.isArray(pistasSimples) && pistasSimples.length > 0) {
+			const pista = pistasSimples[indicePistaPasoActual % pistasSimples.length];
+			mostrarModal('pista', pista);
+			setIndicePistaPasoActual((i) => i + 1);
+			return;
+		}
+
+		// No hay pistas disponibles
+		mostrarModal('pista', 'No hay pistas disponibles para este nivel.');
 	};
-	const manejarPista = () => alert('Mostrando pista...');
-	const manejarReiniciar = () => {
-		lienzoRef.current?.reiniciarSimulacion();
-	};
+
+			const manejarReiniciar = () => {
+			lienzoRef.current?.reiniciarSimulacion();
+			setPasoTutorialActual(0);
+			setIndicePistaPasoActual(0);
+				setObjetivoCumplido(false);
+		};
 
 	const manejarSeleccionHerramienta = (herramientaSeleccionada) => {
 		// eslint-disable-next-line no-console
@@ -110,7 +225,43 @@ function PaginaJuego() {
 		lienzoRef.current?.agregarElementoPlaceholder(herramientaSeleccionada);
 	};
 
-	return (
+		// Diálogo actual del tutor
+		const dialogos = Array.isArray(configuracionNivel?.dialogoTutorSecuencial)
+			? configuracionNivel.dialogoTutorSecuencial
+			: (Array.isArray(configuracionNivel?.dialogoTutorInicial) ? configuracionNivel.dialogoTutorInicial : []);
+		const ultimoPaso = Math.max(0, (dialogos?.length || 1) - 1);
+		const dialogoActual = dialogos?.[pasoTutorialActual] || '¡Hola! Tu objetivo aquí es conectar los elementos para completar el circuito.';
+			const esTutorial11 = String(panelId) === '1' && String(nivelId) === '1';
+			const deshabilitarSiguiente = esTutorial11 && pasoTutorialActual === 6 && !objetivoCumplido;
+
+				const manejarSiguiente = () => {
+					if (deshabilitarSiguiente) {
+						mostrarModal('info', 'Antes de continuar, arma el cortocircuito de batería y presiona [VALIDAR].');
+						return;
+					}
+				if (pasoTutorialActual < ultimoPaso) {
+					setPasoTutorialActual((p) => Math.min(p + 1, ultimoPaso));
+				} else {
+					// Fin de los diálogos
+						if (esTutorial11) {
+						if (objetivoCumplido) {
+							guardarProgresoLocal(panelId, nivelId);
+							mostrarModal('exito', `¡Tutorial completado! Has ganado ${configuracionNivel?.puntosAlCompletar || 0} puntos.`, () => {
+								navegar('/subtemas');
+							});
+						} else {
+							mostrarModal('info', 'Aún no has validado el objetivo del paso 6. Conecta los terminales de la batería y presiona [VALIDAR].', () => {
+								setPasoTutorialActual(6);
+							});
+						}
+					} else {
+						// Para niveles no tutoriales, no completar solo por terminar diálogos
+						mostrarModal('info', 'Para completar el nivel, construye el circuito y presiona [VALIDAR].');
+					}
+				}
+			};
+
+		return (
 		<div className="pagina-juego">
 			{/* Cabecera con título y objetivo del nivel (placeholders) */}
 			<header className="cabecera-juego" aria-label="Cabecera del juego">
@@ -150,22 +301,29 @@ function PaginaJuego() {
 					)}
 				</aside>
 
-				{/* Panel del tutor */}
-				<section className="panel-tutor" aria-label="Panel del tutor">
-					<div className="avatar-tutor" role="img" aria-label="Avatar del tutor" />
-					<div className="dialogo-tutor">
-						<strong>TUTOR</strong>
-						<p>
-							¡Hola! Tu objetivo aquí es conectar los elementos para completar el
-							circuito.
-						</p>
-					</div>
-				</section>
+						{/* Panel del tutor */}
+						<section className="panel-tutor" aria-label="Panel del tutor">
+							<div className="avatar-tutor" role="img" aria-label="Avatar del tutor" />
+							<div className="dialogo-tutor">
+								<strong>VOLTIO</strong>
+								<p dangerouslySetInnerHTML={{ __html: dialogoActual }} />
+														{Array.isArray(dialogos) && dialogos.length > 0 && (
+															<div style={{ marginTop: '8px', display: 'flex', gap: '8px', justifyContent: 'space-between', width: '100%' }}>
+																<button className="boton-pixel boton-siguiente" onClick={() => setPasoTutorialActual((p) => Math.max(0, p - 1))}>
+																	◀ Anterior
+																</button>
+																<button className="boton-pixel boton-siguiente" onClick={manejarSiguiente} disabled={deshabilitarSiguiente}>
+																	Siguiente ▶
+																</button>
+															</div>
+														)}
+							</div>
+						</section>
 
 				{/* Controles del nivel */}
 						<footer className="controles-nivel" aria-label="Controles del nivel">
 							<h3 className="titulo-controles">LEVEL</h3>
-							<div className="grupo-botones">
+										<div className="grupo-botones">
 								<button className="boton-pixel validar" onClick={manejarValidar}>
 									[VALIDAR]
 								</button>
@@ -181,6 +339,14 @@ function PaginaJuego() {
 							</div>
 						</footer>
 			</main>
+
+			{/* Modal de Feedback */}
+			<ModalFeedback
+				visible={modal.visible}
+				tipo={modal.tipo}
+				mensaje={modal.mensaje}
+				onCerrar={cerrarModal}
+			/>
 		</div>
 	);
 }

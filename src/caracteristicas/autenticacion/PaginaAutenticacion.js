@@ -23,13 +23,20 @@ function PaginaAutenticacion() {
     if (vistaActual === 'login') {
       // Simulación de login - En producción, esto llamaría a la API
       try {
-        // Por ahora, cualquier usuario puede hacer login
+        // Buscar usuario guardado en localStorage
+        const usuariosGuardados = JSON.parse(localStorage.getItem('pixelvolt_usuarios') || '{}');
+        const usuarioGuardado = usuariosGuardados[nombreUsuario];
+        
+        // Si el usuario existe, usar su rol guardado; si no, asignar Estudiante por defecto
+        const rol = usuarioGuardado?.rol || 'Estudiante';
+        
         const datosUsuario = {
-          id: Date.now().toString(),
+          id: usuarioGuardado?.id || Date.now().toString(),
           nombreUsuario: nombreUsuario,
-          rol: 'Estudiante' // Por defecto al hacer login
+          rol: rol
         };
         
+        console.log('🔐 Login exitoso:', datosUsuario);
         iniciarSesion(datosUsuario);
         navegar('/laboratorio');
       } catch (error) {
@@ -62,6 +69,15 @@ function PaginaAutenticacion() {
           rol: rol
         };
         
+        // Guardar usuario en localStorage para recordar el rol
+        const usuariosGuardados = JSON.parse(localStorage.getItem('pixelvolt_usuarios') || '{}');
+        usuariosGuardados[nombreUsuario] = {
+          id: datosUsuario.id,
+          rol: rol
+        };
+        localStorage.setItem('pixelvolt_usuarios', JSON.stringify(usuariosGuardados));
+        
+        console.log('📝 Registro exitoso:', datosUsuario);
         iniciarSesion(datosUsuario);
         navegar('/laboratorio');
       } catch (error) {

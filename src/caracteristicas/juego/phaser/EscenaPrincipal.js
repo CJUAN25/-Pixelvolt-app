@@ -37,6 +37,9 @@ class EscenaPrincipal extends Phaser.Scene {
       this.configuracionNivel = null;
     }
 
+    // Map para guardar el último resultado de la simulación (estados de bombillas)
+    this.ultimoMapaEstadosBombillas = new Map();
+
     // Variables de estado para dibujo de cables
     this.estaDibujandoCable = false;
     this.puntoInicioCable = null; // { objeto: Container, punto: {x, y}, puntoVisual: Arc }
@@ -291,6 +294,10 @@ class EscenaPrincipal extends Phaser.Scene {
         break;
         
       case 'resistencia-fija':
+      case 'resistencia-68':
+      case 'resistencia-10':
+      case 'resistencia-100':
+      case 'resistencia-1k':
         nuevoComponente = new ResistenciaComponente(this, x, y, herramienta);
         break;
         
@@ -634,7 +641,10 @@ class EscenaPrincipal extends Phaser.Scene {
       const componentes = (Array.isArray(this.componentesActivos) && this.componentesActivos.length > 0)
         ? this.componentesActivos
         : Array.from(this.conexionesPorComponente.keys());
-      const bombillasEncendidas = analizarEstadoCircuito(componentes, this.conexionesPorComponente);
+      const estadosBombillas = analizarEstadoCircuito(componentes, this.conexionesPorComponente, this.configuracionNivel?.configuracionSimulacion);
+
+      // Guardar el mapa de estados para consulta externa
+      this.ultimoMapaEstadosBombillas = estadosBombillas;
 
       // Actualizar estado visual de todas las bombillas conocidas
       const lista = Array.isArray(this.componentesActivos) && this.componentesActivos.length > 0
@@ -643,10 +653,24 @@ class EscenaPrincipal extends Phaser.Scene {
 
       lista.forEach((comp) => {
         if (comp instanceof BombillaComponente) {
-          if (bombillasEncendidas.has(comp)) {
-            comp.encender?.();
-          } else {
-            comp.apagar?.();
+          const estado = estadosBombillas.get(comp) || 'apagada';
+          switch (estado) {
+            case 'encendida_correcta':
+              comp.encender?.();
+              break;
+            case 'encendida_muy_brillante': // Brillo intenso con Glow FX
+              comp.brillarIntenso?.(); // Llamar al nuevo método
+              break;
+            case 'encendida_tenue':
+              comp.atenuar?.();
+              break;
+            case 'quemada':
+              comp.quemar?.();
+              break;
+            case 'apagada':
+            default:
+              comp.apagar?.();
+              break;
           }
         }
       });
@@ -670,6 +694,54 @@ class EscenaPrincipal extends Phaser.Scene {
   }
 
   /**
+   * Reinicia completamente el estado del nivel: elimina componentes, cables y estados internos.
+   * Mantiene la escena y la configuración del nivel.
+   */
+  reiniciarNivel() {
+    try {
+      // Cancelar dibujo temporal si existía
+      if (this.cableGraficoActual && !this.cableGraficoActual.destroyed) {
+        this.cableGraficoActual.destroy();
+      }
+      this.estaDibujandoCable = false;
+      this.puntoInicioCable = null;
+      this.cableGraficoActual = null;
+      this.puntosIntermediosCable = [];
+
+      // Eliminar todos los cables creados
+      if (Array.isArray(this.cablesCreados)) {
+        // Copia para evitar mutación mientras iteramos
+        const copiaCables = [...this.cablesCreados];
+        copiaCables.forEach((c) => this.eliminarCable(c));
+      }
+
+      // Eliminar todos los componentes activos
+      if (Array.isArray(this.componentesActivos)) {
+        this.componentesActivos.forEach((comp) => {
+          if (comp && comp.destroy && !comp.destroyed) comp.destroy(true);
+        });
+      }
+
+      // Limpiar estructuras de conectividad
+      if (this.conexionesPorComponente?.clear) this.conexionesPorComponente.clear();
+      if (this.cablePorPuntoVisual?.clear) this.cablePorPuntoVisual.clear();
+      this.componentesActivos = [];
+      this.cablesCreados = [];
+
+      // Redibujar cuadrícula por si hubo alteraciones visuales
+      this.dibujarCuadricula();
+
+      // Actualizar estado visual del circuito (apagará bombillas si algo quedara)
+      if (typeof this.actualizarEstadoVisualCircuito === 'function') {
+        this.actualizarEstadoVisualCircuito();
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('Error reiniciando el nivel:', e);
+    }
+  }
+
+  /**
    * Valida si el circuito actual cumple con los objetivos del nivel.
    * @returns {boolean} - true si cumple, false en caso contrario
    */
@@ -688,10 +760,9 @@ class EscenaPrincipal extends Phaser.Scene {
       console.log('🔍 Validación - Objetivos:', objetivos);
 
     // Obtener estado actual del circuito
-    const bombillasEncendidas = analizarEstadoCircuito(componentes, this.conexionesPorComponente);
+  const estadosBombillas = analizarEstadoCircuito(componentes, this.conexionesPorComponente, this.configuracionNivel?.configuracionSimulacion);
 
-      console.log('🔍 Validación - Bombillas encendidas:', bombillasEncendidas.size);
-      console.log('🔍 Validación - Bombillas encendidas (detalle):', Array.from(bombillasEncendidas));
+  console.log('🔍 Validación - Estados bombillas:', Array.from(estadosBombillas.entries()));
 
     // Contar interruptores cerrados
     let interruptoresCerrados = 0;
@@ -706,9 +777,62 @@ class EscenaPrincipal extends Phaser.Scene {
     // Validar objetivos
     let cumple = true;
 
+    // Objetivo específico: cortocircuito en batería (cable entre dos terminales de la misma batería)
+    if (objetivos.requiereCortocircuitoBateria) {
+      // Buscar al menos una batería presente
+      const bateria = componentes.find((comp) => comp instanceof BateriaComponente);
+      let hayCortocircuito = false;
+      if (bateria && Array.isArray(this.cablesCreados)) {
+        for (const cableInfo of this.cablesCreados) {
+          const contIni = cableInfo?.puntoInicio?.contenedor;
+          const contFin = cableInfo?.puntoFin?.contenedor;
+          if (contIni && contFin && contIni === contFin && contIni === bateria) {
+            hayCortocircuito = true;
+            break;
+          }
+        }
+      }
+      if (!hayCortocircuito) {
+        cumple = false;
+      }
+    }
+
     if (objetivos.bombillasEncendidasMin !== undefined) {
-        console.log(`🔍 Validación - Comparando bombillas: ${bombillasEncendidas.size} >= ${objetivos.bombillasEncendidasMin}`);
-      if (bombillasEncendidas.size < objetivos.bombillasEncendidasMin) {
+      const encendidasCount = Array.from(estadosBombillas.values()).filter((e) => e === 'encendida_correcta' || e === 'encendida_muy_brillante' || e === 'encendida_tenue').length;
+      console.log(`🔍 Validación - Comparando bombillas encendidas: ${encendidasCount} >= ${objetivos.bombillasEncendidasMin}`);
+      if (encendidasCount < objetivos.bombillasEncendidasMin) {
+        cumple = false;
+      }
+    }
+
+    // NUEVA LÓGICA: cantidad mínima de bombillas en un estado específico
+    if (objetivos.bombillasConEstadoMin && typeof objetivos.bombillasConEstadoMin === 'object') {
+      const estadoRequerido = objetivos.bombillasConEstadoMin.estado;
+      const cantidadRequerida = objetivos.bombillasConEstadoMin.cantidad;
+      let contadorEstado = 0;
+
+      if (this.ultimoMapaEstadosBombillas && this.ultimoMapaEstadosBombillas.size > 0) {
+        for (const estadoActual of this.ultimoMapaEstadosBombillas.values()) {
+          if (estadoActual === estadoRequerido) contadorEstado++;
+        }
+      } else if (estadosBombillas && estadosBombillas.size > 0) {
+        // Fallback por si no está actualizado el último mapa
+        for (const estadoActual of estadosBombillas.values()) {
+          if (estadoActual === estadoRequerido) contadorEstado++;
+        }
+      }
+
+      console.log(`🔍 Validación - Verificando bombillas con estado '${estadoRequerido}': Encontradas ${contadorEstado}, Requeridas ${cantidadRequerida}`);
+      if (typeof cantidadRequerida === 'number' && contadorEstado < cantidadRequerida) {
+        console.log(`❌ Validación Fallida: No hay suficientes bombillas en estado '${estadoRequerido}'.`);
+        cumple = false;
+      }
+    }
+
+    if (typeof objetivos.estadoBombillaEsperado === 'string') {
+      const hayEstado = Array.from(estadosBombillas.values()).some((e) => e === objetivos.estadoBombillaEsperado);
+      console.log(`🔍 Validación - Buscando estado '${objetivos.estadoBombillaEsperado}': ${hayEstado}`);
+      if (!hayEstado) {
         cumple = false;
       }
     }

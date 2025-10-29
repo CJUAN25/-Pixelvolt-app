@@ -8,9 +8,14 @@ const LienzoJuego = forwardRef(({ configuracionNivel }, ref) => {
   // Exponer métodos al componente padre a través del ref
   useImperativeHandle(ref, () => ({
     reiniciarSimulacion: () => {
-      // eslint-disable-next-line no-console
-      console.log('Reiniciando simulación...');
-      // TODO: Implementar lógica de reinicio cuando se añada la simulación
+      // Llama a la escena para reiniciar completamente el nivel
+      try {
+        const escena = juegoRef.current?.scene.getScene('EscenaPrincipal');
+        escena?.reiniciarNivel?.();
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('No se pudo reiniciar la simulación:', e);
+      }
     },
     agregarElementoPlaceholder: (herramienta) => {
       // eslint-disable-next-line no-console
@@ -23,6 +28,10 @@ const LienzoJuego = forwardRef(({ configuracionNivel }, ref) => {
     ejecutarValidacion: () => {
       const escena = juegoRef.current?.scene.getScene('EscenaPrincipal');
       return escena?.validarSolucionNivel() || false;
+    },
+    obtenerUltimoEstadoSimulacion: () => {
+      const escena = juegoRef.current?.scene.getScene('EscenaPrincipal');
+      return escena?.ultimoMapaEstadosBombillas || new Map();
     },
   }));
 
