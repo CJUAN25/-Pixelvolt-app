@@ -150,8 +150,7 @@
 
 /* Componentes individuales del dashboard */
 .group-manager,
-.progress-viewer,
-.challenge-builder {
+.progress-viewer {
   animation: fadeIn 0.5s ease-in;
 }
 
@@ -167,8 +166,7 @@
 }
 
 .group-manager h2,
-.progress-viewer h2,
-.challenge-builder h2 {
+.progress-viewer h2 {
   color: var(--accent-color);
   font-size: 24px;
   margin-bottom: 20px;
@@ -176,8 +174,7 @@
 }
 
 .group-manager p,
-.progress-viewer p,
-.challenge-builder p {
+.progress-viewer p {
   color: var(--text-secondary);
   font-size: 16px;
   line-height: 1.6;

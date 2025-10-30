@@ -3,17 +3,15 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexto/ContextoAutenticacion';
 import GestorGrupos from '../caracteristicas/panel-control/GestorGrupos';
 import VisorProgreso from '../caracteristicas/panel-control/VisorProgreso';
-import ConstructorDesafios from '../caracteristicas/panel-control/ConstructorDesafios';
 import './DashboardPage.css';
 
 /**
  * Panel de Control del Docente
- * Dashboard principal para que los docentes gestionen grupos, 
- * vean progreso y creen desafíos personalizados
+ * Dashboard principal para que los docentes gestionen grupos y vean progreso
  */
 function DashboardPage() {
   const { usuario } = useAuth();
-  const [activeTab, setActiveTab] = useState('groups'); // 'groups' | 'progress' | 'challenges'
+  const [activeTab, setActiveTab] = useState('groups'); // 'groups' | 'progress'
 
   // Si no es docente, no debería ver esta página (aunque ProtectedRoute ya lo maneja)
   if (usuario?.rol !== 'Docente') {
@@ -60,20 +58,12 @@ function DashboardPage() {
           <span className="tab-icon">📊</span>
           <span className="tab-text">Ver Progreso</span>
         </button>
-        <button 
-          className={`nav-tab ${activeTab === 'challenges' ? 'active' : ''}`}
-          onClick={() => setActiveTab('challenges')}
-        >
-          <span className="tab-icon">⚡</span>
-          <span className="tab-text">Crear Desafíos</span>
-        </button>
       </div>
 
       {/* Contenido del Dashboard según la pestaña activa */}
       <div className="dashboard-content">
         {activeTab === 'groups' && <GestorGrupos />}
         {activeTab === 'progress' && <VisorProgreso />}
-  {activeTab === 'challenges' && <ConstructorDesafios />}
       </div>
 
       {/* Footer informativo */}

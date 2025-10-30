@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexto/ContextoAutenticacion';
+import { fetchConToken } from '../../api/apiCliente';
 import TarjetaPanel from '../../componentes/TarjetaPanel';
 import PuntosHUD from '../../componentes/PuntosHUD';
 import './PaginaLaboratorio.css';
@@ -9,8 +10,33 @@ import './PaginaLaboratorio.css';
 // Acepta props con los nombres antiguos para compatibilidad
 function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBackToAuth: alVolverAutenticacion, onSelectPanel: alSeleccionarPanel }) {
   const { usuario } = useAuth();
+  const [progresoUsuario, setProgresoUsuario] = useState({ nivelesCompletados: {}, puntos: 0 });
+  const [estaCargando, setEstaCargando] = useState(true);
 
-  // Datos de los paneles temáticos
+  // Cargar progreso del usuario para desbloquear paneles
+  useEffect(() => {
+    async function cargarProgreso() {
+      if (!usuario || usuario.rol === 'Docente') {
+        setEstaCargando(false);
+        return;
+      }
+
+      try {
+        const data = await fetchConToken('/progreso/estudiante');
+        if (data) {
+          setProgresoUsuario(data);
+        }
+      } catch (e) {
+        console.error('Error al cargar progreso:', e);
+      } finally {
+        setEstaCargando(false);
+      }
+    }
+
+    cargarProgreso();
+  }, [usuario]);
+
+  // Datos de los paneles temáticos con cantidad de niveles por panel
   const panelesBase = [
     {
       id: 1,
@@ -18,28 +44,32 @@ function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBa
       subtitulo: '(Tutorial Narrativo)',
       icono: '🤖',
       estado: 'desbloqueado',
-      descripcion: 'Aprende las mecánicas básicas de la interfaz mientras reparas a tu robot-tutor'
+      descripcion: 'Aprende las mecánicas básicas de la interfaz mientras reparas a tu robot-tutor',
+      cantidadNiveles: 1
     },
     {
       id: 2,
       titulo: 'Electricidad Básica',
       icono: '💡',
       estado: 'bloqueado',
-      descripcion: 'Domina los fundamentos de la carga, la Ley de Ohm y los circuitos en serie y paralelo'
+      descripcion: 'Domina los fundamentos de la carga, la Ley de Ohm y los circuitos en serie y paralelo',
+      cantidadNiveles: 5
     },
     {
       id: 3,
       titulo: 'Magnetismo',
       icono: '🧲',
       estado: 'bloqueado',
-      descripcion: 'Explora los imanes, las líneas de campo magnético y el funcionamiento de la brújula'
+      descripcion: 'Explora los imanes, las líneas de campo magnético y el funcionamiento de la brújula',
+      cantidadNiveles: 4
     },
     {
       id: 4,
       titulo: 'Inducción de Faraday',
       icono: '⚡',
       estado: 'bloqueado',
-      descripcion: 'Descubre la relación entre magnetismo y electricidad, la Ley de Lenz y los generadores'
+      descripcion: 'Descubre la relación entre magnetismo y electricidad, la Ley de Lenz y los generadores',
+      cantidadNiveles: 4
     },
     {
       id: 5,
@@ -47,7 +77,8 @@ function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBa
       subtitulo: '(RC, RL, RLC)',
       icono: '🔌',
       estado: 'bloqueado',
-      descripcion: 'Analiza la carga y descarga de capacitores e inductores en circuitos avanzados'
+      descripcion: 'Analiza la carga y descarga de capacitores e inductores en circuitos avanzados',
+      cantidadNiveles: 3
     },
     {
       id: 6,
@@ -55,17 +86,62 @@ function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBa
       subtitulo: '(CA) y Aplicaciones',
       icono: '∿',
       estado: 'bloqueado',
-      descripcion: 'Aprende sobre la señal de CA y el principio de los transformadores y motores'
+      descripcion: 'Aprende sobre la señal de CA y el principio de los transformadores y motores',
+      cantidadNiveles: 5
     }
   ];
 
-  // RF-011: Modo Sandbox - Si es Docente, desbloquear todos los paneles
-  // Desbloqueo de paneles según rol
-  // - Docente: todos desbloqueados (modo sandbox)
-  // - Estudiante: el Panel 2 (Electricidad Básica) SIEMPRE desbloqueado; el resto mantiene su estado
-  const paneles = usuario?.rol === 'Docente'
-    ? panelesBase.map((p) => ({ ...p, estado: 'desbloqueado' }))
-    : panelesBase.map((p) => (p.id === 2 ? { ...p, estado: 'desbloqueado' } : p));
+  // Función para verificar si un panel está completado
+  const verificarPanelCompletado = (panelId) => {
+    const panel = panelesBase.find(p => p.id === panelId);
+    if (!panel) return false;
+
+    const panelKey = String(panelId);
+    const nivelesDelPanel = progresoUsuario.nivelesCompletados?.[panelKey];
+    
+    if (!nivelesDelPanel) return false;
+
+    // Contar cuántos niveles están completados
+    const nivelesCompletadosCount = Object.keys(nivelesDelPanel).length;
+    return nivelesCompletadosCount >= panel.cantidadNiveles;
+  };
+
+  // Calcular estados de paneles basándose en el progreso
+  const calcularEstadoPaneles = () => {
+    if (usuario?.rol === 'Docente') {
+      // Docentes: todos desbloqueados (modo sandbox)
+      return panelesBase.map((p) => ({ ...p, estado: 'desbloqueado' }));
+    }
+
+    // Estudiantes: lógica de desbloqueo progresivo
+    return panelesBase.map((panel, index) => {
+      // Panel 1: siempre desbloqueado (tutorial)
+      if (panel.id === 1) {
+        const completado = verificarPanelCompletado(1);
+        return { ...panel, estado: completado ? 'completado' : 'desbloqueado' };
+      }
+
+      // Panel 2: siempre desbloqueado (electricidad básica)
+      if (panel.id === 2) {
+        const completado = verificarPanelCompletado(2);
+        return { ...panel, estado: completado ? 'completado' : 'desbloqueado' };
+      }
+
+      // Resto de paneles: se desbloquean al completar el anterior
+      const panelAnteriorCompletado = verificarPanelCompletado(panel.id - 1);
+      const esteCompletado = verificarPanelCompletado(panel.id);
+
+      if (esteCompletado) {
+        return { ...panel, estado: 'completado' };
+      } else if (panelAnteriorCompletado) {
+        return { ...panel, estado: 'desbloqueado' };
+      } else {
+        return { ...panel, estado: 'bloqueado' };
+      }
+    });
+  };
+
+  const paneles = calcularEstadoPaneles();
 
   const manejarClicPanel = (panel) => {
     console.log('🎯 Click en panel:', panel.titulo, '| Estado:', panel.estado);
@@ -104,15 +180,6 @@ function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBa
                 className="robot-image"
               />
             </div>
-            <div className="robot-mode-indicator">
-              <span>MODO: RESUELVE Y APLICA</span>
-            </div>
-          </div>
-          
-          <div className="shop-section">
-            <button className="shop-button">
-              <span className="shop-text">TIENDA</span>
-            </button>
           </div>
         </div>
 
@@ -137,10 +204,6 @@ function PaginaLaboratorio({ userName: nombreUsuario = 'ExploradorEstelar', onBa
           {/* Controles inferiores */}
           <div className="controls-section">
             <div className="lab-controls">
-              <button className="control-button mode-button">
-                <span className="button-text">MODO: RESUELVE Y APLICA</span>
-              </button>
-              
               {/* Botón de Panel de Control - Solo visible para Docentes */}
               {usuario?.rol === 'Docente' && (
                 <Link to="/dashboard" className="control-button dashboard-button" style={{ textDecoration: 'none' }}>

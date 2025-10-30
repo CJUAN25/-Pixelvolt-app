@@ -143,64 +143,6 @@
 	animation: robotFloat 3s ease-in-out infinite;
 }
 
-.robot-mode-indicator {
-	background: rgba(0, 255, 255, 0.1);
-	border: 2px solid var(--accent-color);
-	border-radius: 15px;
-	padding: 6px 12px;
-	font-size: 8px;
-	color: var(--accent-color);
-	text-transform: uppercase;
-	text-align: center;
-	animation: pulse 2s infinite;
-}
-
-.shop-section {
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	flex-shrink: 0;
-}
-
-.shop-button {
-	background: linear-gradient(45deg, #ff6b35, #f7931e);
-	border: 2px solid #ff6b35;
-	color: white;
-	padding: 10px 25px;
-	font-size: 12px;
-	font-family: var(--pixel-font);
-	font-weight: bold;
-	border-radius: 8px;
-	cursor: pointer;
-	text-transform: uppercase;
-	letter-spacing: 1px;
-	transition: all 0.3s ease;
-	box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-	position: relative;
-	overflow: hidden;
-}
-
-.shop-button::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-	transition: left 0.5s;
-}
-
-.shop-button:hover::before {
-	left: 100%;
-}
-
-.shop-button:hover {
-	transform: translateY(-3px);
-	box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
-	background: linear-gradient(45deg, #ff7b45, #ff9b2e);
-}
-
 /* Columna Derecha (65%) */
 .right-column {
 	display: flex;
@@ -286,17 +228,6 @@
 	background: rgba(0, 255, 255, 0.2);
 	transform: translateY(-2px);
 	box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
-}
-
-.mode-button {
-	background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-	border-color: #ff6b35;
-	color: white;
-}
-
-.mode-button:hover {
-	background: linear-gradient(135deg, #ff7b45 0%, #ff9b2e 100%);
-	box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
 }
 
 .logout-button {
@@ -426,10 +357,6 @@
 		height: 125px;
 	}
   
-	.shop-section {
-		width: auto;
-	}
-  
 	.panels-grid {
 		grid-template-columns: repeat(3, 1fr);
 		grid-template-rows: repeat(2, 1fr);
@@ -515,11 +442,6 @@
   
 	.panels-grid {
 		gap: 6px;
-	}
-  
-	.shop-button {
-		padding: 8px 20px;
-		font-size: 10px;
 	}
   
 	.robot-image {

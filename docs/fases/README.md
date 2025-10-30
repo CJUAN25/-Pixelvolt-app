@@ -207,6 +207,44 @@ Este directorio contiene la documentación completa del proceso de desarrollo de
 
 ---
 
+### ✅ [Fase 8: Integración Completa Backend-Frontend y Sistema de Progresión](./FASE-8-INTEGRACION-API-Y-SISTEMA-PROGRESION.md)
+
+**Fecha**: 30 de octubre de 2025  
+**Estado**: ✅ Completada
+
+**Resumen**:
+
+- Corrección de nombres de columnas SQL en controladores backend.
+- Eliminación completa de datos simulados (mock data) - 300+ líneas removidas.
+- Refactorización de servicios API frontend conectados a endpoints reales.
+- Reestructuración del endpoint `/progreso/estudiante` con estructura anidada.
+- Fix de bug de bombilla quemándose en Panel 2 Nivel 1.
+- Limpieza de UI: eliminación de tienda, modos y constructor de desafíos.
+- Implementación de sistema completo de desbloqueo progresivo de niveles y paneles.
+- Sistema de carga de progreso con `useEffect` y `fetchConToken`.
+- Validación de completitud de paneles basada en cantidad de niveles.
+
+**Requisitos Funcionales Implementados**:
+
+- **RF-001**: Autenticación JWT persistente
+- **RF-003**: Roles con lógica de desbloqueo diferenciada
+- **RF-005**: Sistema de niveles y validación de objetivos
+- **RF-007**: Sistema de puntos con guardado en MySQL
+- **RF-009**: Gestión de grupos con API real
+- **RF-010**: Visualización de progreso con datos reales
+- **RF-011**: Modo Sandbox para docentes
+
+**Archivos Clave**:
+
+- `pixelvolt-api/controladores/gruposControlador.js` (corrección SQL)
+- `pixelvolt-api/controladores/progresoControlador.js` (endpoint reestructurado)
+- `src/api/servicioGrupos.js` (eliminación mock data)
+- `src/api/servicioProgreso.js` (eliminación mock data)
+- `src/caracteristicas/laboratorio/PaginaLaboratorio.js` (sistema de desbloqueo)
+- `src/caracteristicas/juego/datos/configuracionPanel2.js` (fix nivel 2.1)
+
+---
+
 ## 🔜 Próximas Fases Planificadas
 
 ### ✅ [Fase 4C: Pantalla de Juego — Layout y Datos Base](./FASE-4C-JUEGO-LAYOUT.md)
@@ -266,7 +304,8 @@ pixelvolt-app/
 │       ├── FASE-4C-JUEGO-LAYOUT.md
 │       ├── FASE-5-JUEGO-SIMULACION.md
 │       ├── FASE-6-SIMULACION-BASICA.md
-│       └── FASE-7-ENRIQUECIMIENTO-NIVELES-PARTE1.md
+│       ├── FASE-7-ENRIQUECIMIENTO-NIVELES-PARTE1.md
+│       └── FASE-8-INTEGRACION-API-Y-SISTEMA-PROGRESION.md
 │
 ├── src/
 │   ├── api/                      # Servicios (español)
@@ -318,15 +357,16 @@ pixelvolt-app/
 
 | ID | Requisito | Estado | Fase |
 |----|-----------|--------|------|
-| RF-001 | Inicio de sesión | ✅ | 2 |
+| RF-001 | Inicio de sesión y autenticación JWT | ✅ | 2, 8 |
 | RF-002 | Visualización de paneles | ✅ | 3 |
-| RF-003 | Sistema de progreso | ✅ | 3 |
-| RF-006 | Gestión de grupos | ✅ | 4A |
-| RF-007 | Códigos de unión | ✅ | 4A |
-| RF-008 | Visualización de progreso | ✅ | 4B |
-| RF-009 | Estadísticas por grupo | ✅ | 4B |
+| RF-003 | Sistema de progreso y roles | ✅ | 3, 8 |
+| RF-005 | Sistema de niveles y validación | ✅ | 6, 8 |
+| RF-006 | Gestión de grupos | ✅ | 4A, 8 |
+| RF-007 | Sistema de puntos persistente | ✅ | 6, 8 |
+| RF-008 | Visualización de progreso real | ✅ | 4B, 8 |
+| RF-009 | Estadísticas por grupo | ✅ | 4B, 8 |
 | RF-010 | Código de invitación docente | ✅ | 2 |
-| RF-011 | Modo Sandbox | ✅ | 3 |
+| RF-011 | Modo Sandbox | ✅ | 3, 8 |
 
 ### Migración a Español
 
@@ -410,10 +450,11 @@ Toda la base de código ha sido migrada a nomenclatura en español:
 - [Fase 5: Implementación de la Interfaz Interactiva del Juego](./FASE-5-JUEGO-SIMULACION.md)
 - [Fase 6: Simulación Eléctrica Básica, Validación y Progreso](./FASE-6-SIMULACION-BASICA.md)
 - [Fase 7: Enriquecimiento de Niveles y Contenido Educativo (Parte 1)](./FASE-7-ENRIQUECIMIENTO-NIVELES-PARTE1.md)
+- [Fase 8: Integración Completa Backend-Frontend y Sistema de Progresión](./FASE-8-INTEGRACION-API-Y-SISTEMA-PROGRESION.md)
 
 ---
 
-**Última Actualización**: 28 de octubre de 2025  
-**Versión del Proyecto**: 0.7.0  
+**Última Actualización**: 30 de octubre de 2025  
+**Versión del Proyecto**: 0.8.0  
 **Estado**: En Desarrollo Activo  
 **Idioma del Código**: Español 🇪🇸

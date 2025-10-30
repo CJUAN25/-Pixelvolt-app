@@ -11,6 +11,12 @@ const nivel1 = {
   descripcion: "Descubre cómo hacer que la electricidad fluya desde una batería hasta una bombilla para encenderla.", // Nueva descripción
   objetivoTexto: "Conecta la batería y la bombilla para formar un circuito cerrado y hacer que la bombilla se encienda.", // Objetivo claro
   herramientas: ['bateria', 'bombilla'], // Herramientas específicas
+  configuracionSimulacion: { // Configuración permisiva para nivel básico
+    voltajeBateria: 5, // 5 Voltios
+    corrienteOptimaBombilla: 0.05, // 50 mA - corriente óptima
+    corrienteMaximaBombilla: 0.5, // 500 mA - corriente máxima MUY ALTA (no se quemará fácilmente)
+    resistenciaBombilla: 100 // 100Ω de resistencia interna => I = 5V/100Ω = 0.05A (perfecto)
+  },
   dialogoTutorInicial: [ // Diálogo inicial para este nivel
     "¡Hora de aplicar lo aprendido! Tenemos una **Batería**, nuestra fuente de energía.",
     "Y aquí una **Bombilla**. Necesita energía para brillar.",

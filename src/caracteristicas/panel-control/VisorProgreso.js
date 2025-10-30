@@ -160,7 +160,7 @@ function VisorProgreso() {
                   />
                 </div>
                 <small className="ayuda-estadistica">
-                  Promedio global de desafíos completados
+                  Promedio global de niveles completados
                 </small>
               </article>
 
@@ -186,7 +186,7 @@ function VisorProgreso() {
                   {formatearIntentos(datosProgreso.promedioIntentosGlobal)}
                 </span>
                 <small className="ayuda-estadistica">
-                  Intentos promedio por desafío en este conjunto de estudiantes
+                  Intentos promedio por nivel en este conjunto de estudiantes
                 </small>
               </article>
             </div>
