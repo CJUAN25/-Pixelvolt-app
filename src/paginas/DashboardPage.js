@@ -7,11 +7,11 @@ import './DashboardPage.css';
 
 /**
  * Panel de Control del Docente
- * Dashboard principal para que los docentes gestionen grupos y vean progreso
+ * Tablero principal para que los docentes gestionen grupos y vean progreso
  */
 function DashboardPage() {
   const { usuario } = useAuth();
-  const [activeTab, setActiveTab] = useState('groups'); // 'groups' | 'progress'
+  const [pestanaActiva, setPestanaActiva] = useState('grupos'); // 'grupos' | 'progreso'
 
   // Si no es docente, no debería ver esta página (aunque ProtectedRoute ya lo maneja)
   if (usuario?.rol !== 'Docente') {
@@ -45,15 +45,15 @@ function DashboardPage() {
       {/* Navegación por pestañas */}
       <div className="dashboard-nav">
         <button 
-          className={`nav-tab ${activeTab === 'groups' ? 'active' : ''}`}
-          onClick={() => setActiveTab('groups')}
+          className={`nav-tab ${pestanaActiva === 'grupos' ? 'active' : ''}`}
+          onClick={() => setPestanaActiva('grupos')}
         >
           <span className="tab-icon">👥</span>
           <span className="tab-text">Gestionar Grupos</span>
         </button>
         <button 
-          className={`nav-tab ${activeTab === 'progress' ? 'active' : ''}`}
-          onClick={() => setActiveTab('progress')}
+          className={`nav-tab ${pestanaActiva === 'progreso' ? 'active' : ''}`}
+          onClick={() => setPestanaActiva('progreso')}
         >
           <span className="tab-icon">📊</span>
           <span className="tab-text">Ver Progreso</span>
@@ -62,8 +62,8 @@ function DashboardPage() {
 
       {/* Contenido del Dashboard según la pestaña activa */}
       <div className="dashboard-content">
-        {activeTab === 'groups' && <GestorGrupos />}
-        {activeTab === 'progress' && <VisorProgreso />}
+        {pestanaActiva === 'grupos' && <GestorGrupos />}
+        {pestanaActiva === 'progreso' && <VisorProgreso />}
       </div>
 
       {/* Footer informativo */}

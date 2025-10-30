@@ -61,7 +61,10 @@ class ComponenteBase extends Phaser.GameObjects.Container {
           if (pointer.leftButtonDown()) {
             event.stopPropagation();
             
-            if (!scene.estaDibujandoCable) {
+            // Verificar si ya hay un dibujo de cable en curso
+            const estaDibujando = scene.gestorDeCables?.estaDibujandoCable || false;
+            
+            if (!estaDibujando) {
               scene.iniciarDibujoCable(puntoVisual);
             } else {
               scene.finalizarDibujoCable(puntoVisual);
