@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexto/ContextoAutenticacion';
+import { loginUsuario, registrarUsuario } from '../../api/servicioAutenticacion';
 import './PaginaAutenticacion.css';
 
 function PaginaAutenticacion() {
   const [vistaActual, setVistaActual] = useState('login');
+  const [estaCargando, setEstaCargando] = useState(false);
+  const [errorApi, setErrorApi] = useState(null);
   const { iniciarSesion } = useAuth();
   const navegar = useNavigate();
 
@@ -14,76 +17,41 @@ function PaginaAutenticacion() {
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
+    setEstaCargando(true);
+    setErrorApi(null);
+
     const datosFormulario = new FormData(e.target);
-    
-    // Extraer valores del formulario
     const nombreUsuario = datosFormulario.get('username');
     const contrasena = datosFormulario.get('password');
     
-    if (vistaActual === 'login') {
-      // Simulación de login - En producción, esto llamaría a la API
-      try {
-        // Buscar usuario guardado en localStorage
-        const usuariosGuardados = JSON.parse(localStorage.getItem('pixelvolt_usuarios') || '{}');
-        const usuarioGuardado = usuariosGuardados[nombreUsuario];
-        
-        // Si el usuario existe, usar su rol guardado; si no, asignar Estudiante por defecto
-        const rol = usuarioGuardado?.rol || 'Estudiante';
-        
-        const datosUsuario = {
-          id: usuarioGuardado?.id || Date.now().toString(),
-          nombreUsuario: nombreUsuario,
-          rol: rol
-        };
-        
-        console.log('🔐 Login exitoso:', datosUsuario);
-        iniciarSesion(datosUsuario);
+    try {
+      if (vistaActual === 'login') {
+        // Login real con API
+        const respuesta = await loginUsuario(nombreUsuario, contrasena);
+        console.log('🔐 Login exitoso:', respuesta.usuario);
+        iniciarSesion(respuesta);
         navegar('/laboratorio');
-      } catch (error) {
-        console.error('Error en login:', error);
-        alert('Error al iniciar sesión. Por favor, intenta de nuevo.');
-      }
-    } else {
-      // Lógica de registro con código de invitación
-      const confirmarContrasena = datosFormulario.get('confirmPassword');
-      const codigoInvitacion = datosFormulario.get('codigoInvitacion');
-      
-      // Validar que las contraseñas coincidan
-      if (contrasena !== confirmarContrasena) {
-        alert('Las contraseñas no coinciden');
-        return;
-      }
-      
-      try {
-        // Simulación de registro - Determinar rol según código de invitación
-        let rol = 'Estudiante'; // Rol por defecto
+      } else {
+        // Registro real con API
+        const confirmarContrasena = datosFormulario.get('confirmPassword');
+        const codigoInvitacion = datosFormulario.get('codigoInvitacion') || '';
         
-        // RF-010: Código de invitación para docentes
-        if (codigoInvitacion === 'PROFESOR2025') {
-          rol = 'Docente';
+        // Validar que las contraseñas coincidan
+        if (contrasena !== confirmarContrasena) {
+          setErrorApi('Las contraseñas no coinciden');
+          return;
         }
         
-        const datosUsuario = {
-          id: Date.now().toString(),
-          nombreUsuario: nombreUsuario,
-          rol: rol
-        };
-        
-        // Guardar usuario en localStorage para recordar el rol
-        const usuariosGuardados = JSON.parse(localStorage.getItem('pixelvolt_usuarios') || '{}');
-        usuariosGuardados[nombreUsuario] = {
-          id: datosUsuario.id,
-          rol: rol
-        };
-        localStorage.setItem('pixelvolt_usuarios', JSON.stringify(usuariosGuardados));
-        
-        console.log('📝 Registro exitoso:', datosUsuario);
-        iniciarSesion(datosUsuario);
+        const respuesta = await registrarUsuario(nombreUsuario, contrasena, codigoInvitacion);
+        console.log('📝 Registro exitoso:', respuesta.usuario);
+        iniciarSesion(respuesta);
         navegar('/laboratorio');
-      } catch (error) {
-        console.error('Error en registro:', error);
-        alert('Error al registrarse. Por favor, intenta de nuevo.');
       }
+    } catch (error) {
+      console.error('Error en autenticación:', error);
+      setErrorApi(error.message || 'Error al procesar la solicitud');
+    } finally {
+      setEstaCargando(false);
     }
   };
 
@@ -109,6 +77,20 @@ function PaginaAutenticacion() {
         </div>
 
         <form className="formulario-autenticacion" onSubmit={manejarEnvio}>
+          {errorApi && (
+            <div style={{ 
+              color: '#ff6b6b', 
+              backgroundColor: 'rgba(255, 107, 107, 0.1)', 
+              padding: '10px', 
+              marginBottom: '15px',
+              border: '1px solid #ff6b6b',
+              borderRadius: '4px',
+              fontSize: '12px'
+            }}>
+              {errorApi}
+            </div>
+          )}
+          
           {vistaActual === 'login' ? (
             <>
               <div className="grupo-entrada">
@@ -117,6 +99,7 @@ function PaginaAutenticacion() {
                   name="username"
                   placeholder="Nombre de Usuario"
                   className="entrada-pixel"
+                  disabled={estaCargando}
                   required
                 />
               </div>
@@ -126,11 +109,12 @@ function PaginaAutenticacion() {
                   name="password"
                   placeholder="Contraseña"
                   className="entrada-pixel"
+                  disabled={estaCargando}
                   required
                 />
               </div>
-              <button type="submit" className="boton-pixel primario">
-                [ Iniciar Sesión ]
+              <button type="submit" className="boton-pixel primario" disabled={estaCargando}>
+                {estaCargando ? '[ Cargando... ]' : '[ Iniciar Sesión ]'}
               </button>
             </>
           ) : (
@@ -141,6 +125,7 @@ function PaginaAutenticacion() {
                   name="username"
                   placeholder="Nombre de Usuario"
                   className="entrada-pixel"
+                  disabled={estaCargando}
                   required
                 />
               </div>
@@ -150,6 +135,7 @@ function PaginaAutenticacion() {
                   name="password"
                   placeholder="Contraseña"
                   className="entrada-pixel"
+                  disabled={estaCargando}
                   required
                 />
               </div>
@@ -159,6 +145,7 @@ function PaginaAutenticacion() {
                   name="confirmPassword"
                   placeholder="Confirmar Contraseña"
                   className="entrada-pixel"
+                  disabled={estaCargando}
                   required
                 />
               </div>
@@ -168,13 +155,14 @@ function PaginaAutenticacion() {
                   name="codigoInvitacion"
                   placeholder="Código de Invitación (Opcional)"
                   className="entrada-pixel"
+                  disabled={estaCargando}
                 />
                 <small style={{ color: 'var(--texto-secundario)', fontSize: '8px', marginTop: '5px', display: 'block' }}>
                   Usa "PROFESOR2025" para registrarte como Docente
                 </small>
               </div>
-              <button type="submit" className="boton-pixel primario">
-                [ Crear Cuenta ]
+              <button type="submit" className="boton-pixel primario" disabled={estaCargando}>
+                {estaCargando ? '[ Cargando... ]' : '[ Crear Cuenta ]'}
               </button>
             </>
           )}

@@ -42,12 +42,7 @@ function App() {
     navegar('/laboratorio');
   };
 
-  // Función para iniciar un nivel específico
-  const manejarIniciarNivel = (panel, level) => {
-    console.log('Iniciando nivel:', { panel, level });
-    // TODO: Navegar a la página del nivel específico
-    alert(`¡Próximamente! Nivel "${level.title}" del panel "${panel.title}"`);
-  };
+  // manejarIniciarNivel eliminado (obsoleto)
 
   return (
     <div className="App">
@@ -80,7 +75,6 @@ function App() {
                 selectedPanel={panelSeleccionado}
                 userName={usuario?.nombreUsuario}
                 onBackToLaboratory={manejarVolverLaboratorio}
-                onStartLevel={manejarIniciarNivel}
               />
             </RutaProtegida>
           } 

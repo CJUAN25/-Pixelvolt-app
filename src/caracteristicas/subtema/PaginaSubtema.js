@@ -1,27 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexto/ContextoAutenticacion';
+import { fetchConToken } from '../../api/apiCliente';
 import { useNavigate } from 'react-router-dom';
 import './PaginaSubtema.css';
 import PuntosHUD from '../../componentes/PuntosHUD';
 
-function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuario, onBackToLaboratory: alVolverLaboratorio, onStartLevel: alIniciarNivel }) {
+function PaginaSubtema({ selectedPanel: panelSeleccionado, userName: nombreUsuario, onBackToLaboratory: alVolverLaboratorio }) {
   const [nivelSeleccionado, setNivelSeleccionado] = useState(null);
   const { usuario } = useAuth();
   const navegar = useNavigate();
-  const userId = usuario?.id || 'anonimo';
+  const userId = usuario?.id_usuario || usuario?.id || 'anonimo';
   const [progresoUsuario, setProgresoUsuario] = useState({ nivelesCompletados: {}, puntos: 0 });
+  const [estaCargandoProgreso, setEstaCargandoProgreso] = useState(false);
 
   useEffect(() => {
-    const claveProgreso = `pixelvolt_progreso_${userId}`;
-    try {
-      const guardado = localStorage.getItem(claveProgreso);
-      if (guardado) {
-        setProgresoUsuario(JSON.parse(guardado));
-      } else {
-        setProgresoUsuario({ nivelesCompletados: {}, puntos: 0 });
+    async function cargarProgreso() {
+      setEstaCargandoProgreso(true);
+      try {
+        const data = await fetchConToken('/progreso/estudiante');
+        // data esperado: { nivelesCompletados, puntos }
+        if (data) setProgresoUsuario(data);
+      } catch (e) {
+        console.error('Error al cargar progreso desde API:', e);
+      } finally {
+        setEstaCargandoProgreso(false);
       }
-    } catch (e) {
-      console.error('Error al cargar progreso en PaginaSubtema:', e);
+    }
+    if (userId && userId !== 'anonimo') {
+      cargarProgreso();
     }
   }, [userId]);
 

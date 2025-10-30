@@ -5,14 +5,14 @@ import { HERRAMIENTAS_DISPONIBLES } from './datos/definicionHerramientas';
 import { obtenerHerramientasParaNivel, obtenerConfiguracionNivel } from './datos/configuracionNiveles';
 import LienzoJuego from './componentes/LienzoJuego';
 import { useAuth } from '../../contexto/ContextoAutenticacion';
+import { fetchConToken } from '../../api/apiCliente';
 import ModalFeedback from './componentes/ModalFeedback';
 
 function PaginaJuego() {
 	// Extraer identificadores desde la ruta
 	const { panelId, nivelId } = useParams();
 	const navegar = useNavigate();
-	const { usuario } = useAuth();
-  const userId = usuario?.id || 'anonimo';
+	const { usuario, setUsuario } = useAuth();
 
 	// Referencia al lienzo de Phaser para controlar la simulación
 	const lienzoRef = React.useRef();
@@ -68,61 +68,48 @@ function PaginaJuego() {
   navegar('/subtemas'); // ruta fija confirmada
 };
 
-	// Guardar progreso local (niveles completados por usuario y puntos acumulados)
-	const guardarProgresoLocal = (panelIdActual, nivelIdActual) => {
-		const claveProgreso = `pixelvolt_progreso_${userId}`;
-		let progreso = {};
+	// Guardar progreso en el backend
+	const guardarProgresoRemoto = async (panelIdActual, nivelIdActual) => {
 		try {
-			const progresoGuardado = localStorage.getItem(claveProgreso);
-			if (progresoGuardado) {
-				progreso = JSON.parse(progresoGuardado);
-			}
-		} catch (e) {
-			console.error('Error al leer progreso de localStorage:', e);
-			progreso = { nivelesCompletados: {}, puntos: 0 };
-		}
+			// Normalizar IDs a números simples (soporta 'panel-2-...' y 'nivel-1-...')
+			const normalizarPanel = (pid) => {
+				if (typeof pid === 'string' && pid.startsWith('panel-')) {
+					const partes = pid.split('-');
+					return Number(partes[1]) || pid;
+				}
+				return Number(pid) || pid;
+			};
+			const normalizarNivel = (nid) => {
+				if (typeof nid === 'string' && nid.startsWith('nivel-')) {
+					const partes = nid.split('-');
+					return Number(partes[1]) || nid;
+				}
+				return Number(nid) || nid;
+			};
 
-		// Inicializar estructuras si no existen
-		if (!progreso.nivelesCompletados) progreso.nivelesCompletados = {};
-		// Normalizar IDs a números/cadenas simples (soporta 'panel-2-...' y 'nivel-1-...')
-		const normalizarPanel = (pid) => {
-			if (typeof pid === 'string' && pid.startsWith('panel-')) {
-				const partes = pid.split('-');
-				return partes[1] || pid;
-			}
-			return pid;
-		};
-		const normalizarNivel = (nid) => {
-			if (typeof nid === 'string' && nid.startsWith('nivel-')) {
-				const partes = nid.split('-');
-				return partes[1] || nid;
-			}
-			return nid;
-		};
+			const panelKey = normalizarPanel(panelIdActual);
+			const nivelKey = normalizarNivel(nivelIdActual);
+			const puntosNivel = configuracionNivel?.puntosAlCompletar || 0;
 
-		const panelKey = String(normalizarPanel(panelIdActual));
-		const nivelKey = String(normalizarNivel(nivelIdActual));
+			await fetchConToken('/progreso/completar', {
+				method: 'POST',
+				body: {
+					panelId: panelKey,
+					nivelId: nivelKey,
+					puntos_ganados: puntosNivel
+				}
+			});
 
-		if (!progreso.nivelesCompletados[panelKey]) progreso.nivelesCompletados[panelKey] = {};
-		progreso.nivelesCompletados[panelKey][nivelKey] = true;
-
-		// Otorgar puntos
-		const puntosNivel = configuracionNivel?.puntosAlCompletar || 0;
-		progreso.puntos = (progreso.puntos || 0) + puntosNivel;
-		// eslint-disable-next-line no-console
-		console.log(`Nivel ${panelKey}-${nivelKey} completado! Puntos ganados: ${puntosNivel}, Total: ${progreso.puntos}`);
-
-		// Guardar en localStorage
-		try {
-			localStorage.setItem(claveProgreso, JSON.stringify(progreso));
-			// Notificar a toda la app que los puntos/progreso cambiaron
-			window.dispatchEvent(new Event('pixelvolt_progreso_update'));
-		} catch (e) {
-			console.error('Error al guardar progreso en localStorage:', e);
+			console.log(`✅ Nivel ${panelKey}-${nivelKey} completado! Puntos ganados: ${puntosNivel}`);
+		} catch (error) {
+			console.error('Error al guardar progreso:', error);
+			// Mostrar error al usuario
+			mostrarModal('error', 'No se pudo guardar tu progreso. Por favor, intenta nuevamente.');
 		}
 	};
 
-	const manejarValidar = () => {
+
+	const manejarValidar = async () => {
 		// En el tutorial del Panel 1 Nivel 1, la validación solo se permite en el paso 6
 		if (String(panelId) === '1' && String(nivelId) === '1') {
 			if (pasoTutorialActual !== 6) {
@@ -138,7 +125,15 @@ function PaginaJuego() {
 					setPasoTutorialActual(7); // continuar tutorial tras validar en paso 6
 				});
 			} else {
-				guardarProgresoLocal(panelId, nivelId);
+				await guardarProgresoRemoto(panelId, nivelId);
+				// Actualización de puntos en caliente en el contexto
+				const puntosGanados = configuracionNivel?.puntosAlCompletar || 0;
+				if (puntosGanados > 0 && typeof setUsuario === 'function') {
+					setUsuario((usuarioActual) => ({
+						...usuarioActual,
+						puntos: (usuarioActual?.puntos || 0) + puntosGanados,
+					}));
+				}
 				mostrarModal('exito', `¡Nivel Completado! Has ganado ${configuracionNivel?.puntosAlCompletar || 0} puntos.`, () => {
 					navegar('/subtemas');
 				});
@@ -234,7 +229,7 @@ function PaginaJuego() {
 			const esTutorial11 = String(panelId) === '1' && String(nivelId) === '1';
 			const deshabilitarSiguiente = esTutorial11 && pasoTutorialActual === 6 && !objetivoCumplido;
 
-				const manejarSiguiente = () => {
+				const manejarSiguiente = async () => {
 					if (deshabilitarSiguiente) {
 						mostrarModal('info', 'Antes de continuar, arma el cortocircuito de batería y presiona [VALIDAR].');
 						return;
@@ -245,7 +240,14 @@ function PaginaJuego() {
 					// Fin de los diálogos
 						if (esTutorial11) {
 						if (objetivoCumplido) {
-							guardarProgresoLocal(panelId, nivelId);
+							await guardarProgresoRemoto(panelId, nivelId);
+							const puntosGanados = configuracionNivel?.puntosAlCompletar || 0;
+							if (puntosGanados > 0 && typeof setUsuario === 'function') {
+								setUsuario((usuarioActual) => ({
+									...usuarioActual,
+									puntos: (usuarioActual?.puntos || 0) + puntosGanados,
+								}));
+							}
 							mostrarModal('exito', `¡Tutorial completado! Has ganado ${configuracionNivel?.puntosAlCompletar || 0} puntos.`, () => {
 								navegar('/subtemas');
 							});
@@ -349,6 +351,7 @@ function PaginaJuego() {
 			/>
 		</div>
 	);
+
 }
 
 export default PaginaJuego;
